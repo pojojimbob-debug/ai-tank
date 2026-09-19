@@ -2,36 +2,48 @@
 
 Pitch platform for AI ideas — **not** a trading product. Separate website, layout, and concept.
 
-Investors can take **immediate interest** and request permissions. Contests run like **Speedrun Charts** (many boards and score types). AI judges + Grok scoring ship as **one scoring pack**. Recycling bots can resurface rejected ideas only via credit / offer to the originator.
+Investors can take **immediate interest** and request permissions. Contests run like **Speedrun Charts** (many boards). AI judges + Grok scoring ship as **one scoring pack**. Recycling bots resurface ideas only via credit / offers to the originator.
 
-Wedge theme for early boards: Starlink + AI / orbital / edge for underserved areas.
-
-## Read first
-
-- [CONCEPT.md](CONCEPT.md) — platform source of truth
-- [CONTEST.md](CONTEST.md) — multi-board contest model + Round 1
-- [SCORING_PACK.md](SCORING_PACK.md) — Grok + judge engine as one unit
-- [docs/DATA_MODEL.md](docs/DATA_MODEL.md) — entities and flows
-
-## Core loop
-
-1. Originator submits a pitch
-2. Investors Interest / Permission-request (contest optional)
-3. Pitches enroll on one or more boards
-4. Scoring pack and/or community metrics write scores
-5. Bots may open RecycleOffers on vaulted ideas
-
-## Status
-
-Scaffold: landing (`index.html`), Flask (`app.py`), personas (`judges.md`), engine (`judge_engine.py`), in-memory store (`pitch_store.py`). Concept docs expanded on branch `concept/platform-v1`.
-
-Next build (after sign-off): wire form → scoring pack, persistence, investor permission UX, multi-board config.
-
-## Run (local scaffold)
+## Quick start
 
 ```bash
 pip install -r requirements.txt
 python app.py
 ```
+
+Open http://127.0.0.1:5000
+
+Optional live judging:
+
+```bash
+export XAI_API_KEY=your_key   # or GROK_API_KEY
+python app.py
+```
+
+Without a key, the scoring pack uses a deterministic heuristic (same API shape).
+
+## What's built
+
+- `index.html` — pitch / browse / boards / permissions UI
+- `app.py` — Flask API
+- `db.py` — SQLite (`aitank.db`) for pitches, interests, permissions, boards, scores, recycle offers
+- `scoring_pack.py` + `judge_engine.py` — one scoring unit (prompts from `judges.md`)
+- Round 1 board seeded: `round-1-starlink`
+
+## Docs
+
+- [CONCEPT.md](CONCEPT.md)
+- [CONTEST.md](CONTEST.md)
+- [SCORING_PACK.md](SCORING_PACK.md)
+- [docs/DATA_MODEL.md](docs/DATA_MODEL.md)
+
+## API sketch
+
+- `POST /api/pitches` — submit + score (+ optional Round 1 enroll)
+- `GET /api/pitches` — list
+- `POST /api/pitches/:id/interest`
+- `POST /api/pitches/:id/permissions` / `POST /api/permissions/:id/decide`
+- `GET /api/boards` / `GET /api/boards/:slug/leaderboard`
+- `POST /api/pitches/:id/recycle-offer`
 
 Repo: https://github.com/pojojimbob-debug/ai-tank

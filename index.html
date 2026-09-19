@@ -1,122 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Tank — Shark Tank for AI Ideas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Tank — Pitch. Interest. Build.</title>
   <style>
     :root {
-      --bg: #0a0a0f;
-      --accent: #00e5ff;
-      --text: #f0f0f5;
-      --muted: #8888a0;
+      --ink: #14110f;
+      --paper: #f6f0e6;
+      --card: #fffdf8;
+      --amber: #e8a317;
+      --amber-deep: #c4840a;
+      --teal: #0f6e6a;
+      --muted: #6d6458;
+      --line: #e4d8c4;
+      --danger: #a33b2a;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 500px at 10% -10%, #ffe7b0 0%, transparent 55%),
+        radial-gradient(900px 400px at 100% 0%, #c8ebe4 0%, transparent 50%),
+        var(--paper);
+      color: var(--ink);
+      line-height: 1.5;
+      min-height: 100vh;
     }
+    a { color: var(--teal); }
     header {
-      padding: 2rem 1rem;
-      text-align: center;
-      border-bottom: 1px solid #1a1a2e;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: end;
+      justify-content: space-between;
     }
-    h1 {
-      font-size: 2.5rem;
-      background: linear-gradient(90deg, var(--accent), #7b2ff7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .brand h1 {
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      letter-spacing: -0.03em;
     }
-    .tagline { color: var(--muted); margin-top: 0.5rem; }
-    main { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
-    .pitch-form {
-      background: #12121f;
-      border: 1px solid #2a2a3e;
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
-    input, textarea {
-      width: 100%;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      background: #0a0a0f;
-      border: 1px solid #2a2a3e;
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 1rem;
-    }
-    button {
-      background: var(--accent);
-      color: #000;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      font-weight: 700;
+    .brand h1 span { color: var(--amber-deep); }
+    .brand p { color: var(--muted); max-width: 36rem; margin-top: 0.35rem; }
+    nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    nav button, .btn {
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+      padding: 0.55rem 0.9rem;
+      border-radius: 999px;
+      font-weight: 650;
       cursor: pointer;
-      font-size: 1rem;
     }
-    button:hover { opacity: 0.9; }
-    .leaderboard { margin-top: 2rem; }
-    .pitch-card {
-      background: #12121f;
-      border: 1px solid #2a2a3e;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 1rem;
+    nav button.ghost, .btn.ghost {
+      background: transparent;
+      color: var(--ink);
     }
-    .score { color: var(--accent); font-weight: 700; }
-    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.9rem; }
+    nav button.active {
+      background: var(--amber);
+      border-color: var(--amber-deep);
+      color: var(--ink);
+    }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.25rem 3rem;
+      display: grid;
+      gap: 1.25rem;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1rem;
+    }
+    @media (max-width: 860px) {
+      .hero-grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1.15rem 1.2rem;
+      box-shadow: 0 10px 30px rgba(20, 17, 15, 0.04);
+    }
+    .card h2 { font-size: 1.15rem; margin-bottom: 0.75rem; }
+    label { display: block; font-size: 0.85rem; font-weight: 650; margin: 0.55rem 0 0.25rem; }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.65rem 0.75rem;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+    }
+    textarea { resize: vertical; min-height: 72px; }
+    .row { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+    .check { display: flex; gap: 0.5rem; align-items: center; margin: 0.75rem 0; font-size: 0.95rem; }
+    .check input { width: auto; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border-radius: 999px;
+      padding: 0.2rem 0.55rem;
+      background: #f3e6c8;
+      color: var(--ink);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .pill.teal { background: #d7efeb; color: var(--teal); }
+    .muted { color: var(--muted); font-size: 0.92rem; }
+    .pitch-list { display: grid; gap: 0.75rem; }
+    .pitch {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 0.9rem 1rem;
+      background: #fff;
+    }
+    .pitch-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      align-items: start;
+    }
+    .score {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--amber-deep);
+      white-space: nowrap;
+    }
+    .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.7rem; }
+    .actions button {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 999px;
+      padding: 0.35rem 0.7rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .actions button.primary {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: white;
+    }
+    .status {
+      min-height: 1.25rem;
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: var(--teal);
+    }
+    .status.err { color: var(--danger); }
+    footer {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.25rem 2rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <header>
-    <h1>AI Tank</h1>
-    <p class="tagline">Shark Tank for AI. Pitch. Get judged. Build the future.</p>
+    <div class="brand">
+      <h1>AI <span>Tank</span></h1>
+      <p>Pitch AI ideas. Investors can take interest and request permission immediately — contests are multi-board charts, not one show floor.</p>
+    </div>
+    <nav>
+      <button type="button" class="active" data-tab="pitch">Pitch</button>
+      <button type="button" data-tab="browse">Browse / Interest</button>
+      <button type="button" data-tab="boards">Boards</button>
+      <button type="button" class="ghost" data-tab="perms">Permissions</button>
+    </nav>
   </header>
+
   <main>
-    <section class="pitch-form">
-      <h2>Submit Your Pitch</h2>
-      <form id="pitchForm">
-        <label for="title">Idea Title</label>
-        <input type="text" id="title" placeholder="e.g. Starlink-powered crop AI for rural farms" required>
-        <label for="problem">The Problem</label>
-        <textarea id="problem" rows="3" placeholder="What are you solving?" required></textarea>
-        <label for="solution">Your AI Solution</label>
-        <textarea id="solution" rows="3" placeholder="How does AI fix it?" required></textarea>
-        <label for="why">Why Now / Why You</label>
-        <textarea id="why" rows="2" placeholder="Why this matters now"></textarea>
-        <button type="submit">Pitch It</button>
-      </form>
-    </section>
-    <section class="leaderboard">
-      <h2>Top Pitches</h2>
-      <div id="pitches">
-        <div class="pitch-card">
-          <strong>Orbital Farm AI</strong> — <span class="score">92</span><br>
-          <small>Starlink + satellite data for precision agriculture in remote areas.</small>
-        </div>
-        <div class="pitch-card">
-          <strong>Edge DB Sync</strong> — <span class="score">87</span><br>
-          <small>Distributed AI database that works offline via Starlink mesh.</small>
-        </div>
+    <section id="tab-pitch" class="hero-grid">
+      <div class="card">
+        <h2>Submit a pitch</h2>
+        <p class="muted">Scored by the Builder / Market / Impact pack (Grok when configured, heuristic otherwise). Starlink / orbital / edge ideas get a Nova bonus.</p>
+        <form id="pitchForm">
+          <label for="handle">Your handle</label>
+          <input id="handle" value="pojo" required />
+          <label for="title">Title</label>
+          <input id="title" placeholder="Orbital clinic triage" required />
+          <label for="problem">Problem</label>
+          <textarea id="problem" required placeholder="Who hurts and why?"></textarea>
+          <label for="solution">AI solution</label>
+          <textarea id="solution" required placeholder="What does the model / system do?"></textarea>
+          <label for="why">Why now</label>
+          <textarea id="why" placeholder="Timing, wedge, proof"></textarea>
+          <label class="check"><input type="checkbox" id="starlink" /> Uses Starlink / orbital / edge connectivity</label>
+          <label class="check"><input type="checkbox" id="enroll" checked /> Enroll in Round 1 board</label>
+          <div class="row" style="margin-top:0.8rem">
+            <button class="btn" type="submit">Pitch it</button>
+            <span class="muted">Investors can interest you without waiting on a contest.</span>
+          </div>
+          <div class="status" id="pitchStatus"></div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>How this stage works</h2>
+        <p class="muted" style="margin-bottom:0.75rem">Not a trading desk. This is a pitch floor with three doors:</p>
+        <p><span class="pill">1</span> <strong>Investor lane</strong> — Interest now, permission requests for contact / data / evaluate.</p>
+        <p style="margin-top:0.55rem"><span class="pill teal">2</span> <strong>Boards</strong> — Speedrun-style charts (judge panel, votes, popularity).</p>
+        <p style="margin-top:0.55rem"><span class="pill">3</span> <strong>Recycle bots</strong> — rejected ideas can get credit / offers, never silent republish.</p>
+        <div id="lastScore" class="muted" style="margin-top:1rem"></div>
       </div>
     </section>
+
+    <section id="tab-browse" class="card hidden">
+      <div class="row" style="justify-content:space-between;margin-bottom:0.75rem">
+        <h2>Open pitches</h2>
+        <button type="button" class="btn ghost" id="refreshPitches">Refresh</button>
+      </div>
+      <label for="investorHandle">Investor handle</label>
+      <input id="investorHandle" value="investor_demo" style="max-width:240px;margin-bottom:0.75rem" />
+      <div id="pitchList" class="pitch-list"></div>
+    </section>
+
+    <section id="tab-boards" class="card hidden">
+      <h2>Contest boards</h2>
+      <p class="muted" style="margin-bottom:0.75rem">Multiple scoreboards can run at once. Round 1 is one board, not the whole platform.</p>
+      <div id="boardMeta"></div>
+      <div id="boardList" class="pitch-list" style="margin-top:0.75rem"></div>
+    </section>
+
+    <section id="tab-perms" class="card hidden">
+      <div class="row" style="justify-content:space-between;margin-bottom:0.75rem">
+        <h2>Permission inbox</h2>
+        <button type="button" class="btn ghost" id="refreshPerms">Refresh</button>
+      </div>
+      <label for="originatorHandle">Originator handle</label>
+      <input id="originatorHandle" value="pojo" style="max-width:240px;margin-bottom:0.75rem" />
+      <div id="permList" class="pitch-list"></div>
+    </section>
   </main>
-  <footer>
-    AI Tank — Built to spark American AI creativity.
-  </footer>
+
+  <footer>AI Tank — separate product from any trading stack. Local scaffold; set XAI_API_KEY for live Grok judging.</footer>
+
   <script>
-    document.getElementById('pitchForm').addEventListener('submit', function(e) {
+    const $ = (id) => document.getElementById(id);
+    const tabs = document.querySelectorAll('nav button[data-tab]');
+
+    function showTab(name) {
+      ['pitch','browse','boards','perms'].forEach((t) => {
+        $('tab-' + t).classList.toggle('hidden', t !== name);
+      });
+      tabs.forEach((b) => b.classList.toggle('active', b.dataset.tab === name));
+      if (name === 'browse') loadPitches();
+      if (name === 'boards') loadBoards();
+      if (name === 'perms') loadPerms();
+    }
+    tabs.forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+    async function api(path, opts) {
+      const res = await fetch(path, {
+        headers: { 'Content-Type': 'application/json' },
+        ...opts,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      return data;
+    }
+
+    $('pitchForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const title = document.getElementById('title').value;
-      alert('Pitch received: ' + title + '\n\n(AI judges will score it soon. This is a scaffold — full judging coming.)');
-      this.reset();
+      const status = $('pitchStatus');
+      status.className = 'status';
+      status.textContent = 'Scoring…';
+      try {
+        const pitch = await api('/api/pitches', {
+          method: 'POST',
+          body: JSON.stringify({
+            handle: $('handle').value,
+            title: $('title').value,
+            problem: $('problem').value,
+            solution: $('solution').value,
+            why_now: $('why').value,
+            starlink_flag: $('starlink').checked,
+            enroll_round1: $('enroll').checked,
+          }),
+        });
+        status.textContent = `Landed. Nova ${pitch.nova_score} · id ${pitch.id}`;
+        const s = pitch.score || {};
+        $('lastScore').innerHTML = `<strong>Last score</strong> (${s.mode || 'n/a'}): Builder ${s.builder ?? '—'} · Market ${s.market ?? '—'} · Impact ${s.impact ?? '—'} → final <strong>${pitch.nova_score}</strong>`;
+        e.target.reset();
+        $('handle').value = 'pojo';
+        $('enroll').checked = true;
+      } catch (err) {
+        status.className = 'status err';
+        status.textContent = err.message;
+      }
     });
+
+    function pitchCard(p) {
+      const star = p.starlink_flag ? '<span class="pill teal">Starlink</span>' : '';
+      return `<article class="pitch" data-id="${p.id}">
+        <div class="pitch-head">
+          <div>
+            <strong>${escapeHtml(p.title)}</strong> ${star}
+            <div class="muted">${escapeHtml(p.problem).slice(0, 140)}</div>
+          </div>
+          <div class="score">${p.nova_score ?? '—'}</div>
+        </div>
+        <div class="muted">Interest: ${p.interest_count || 0}</div>
+        <div class="actions">
+          <button type="button" class="primary" data-act="interest">Interest</button>
+          <button type="button" data-act="perm">Request contact</button>
+          <button type="button" data-act="recycle">Recycle offer</button>
+        </div>
+      </article>`;
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[c]);
+    }
+
+    async function loadPitches() {
+      const list = $('pitchList');
+      list.innerHTML = '<p class="muted">Loading…</p>';
+      try {
+        const pitches = await api('/api/pitches');
+        if (!pitches.length) {
+          list.innerHTML = '<p class="muted">No pitches yet — submit one on the Pitch tab.</p>';
+          return;
+        }
+        list.innerHTML = pitches.map(pitchCard).join('');
+        list.querySelectorAll('.pitch').forEach((el) => {
+          el.addEventListener('click', async (ev) => {
+            const btn = ev.target.closest('button[data-act]');
+            if (!btn) return;
+            const id = el.dataset.id;
+            const handle = $('investorHandle').value || 'investor_demo';
+            try {
+              if (btn.dataset.act === 'interest') {
+                await api(`/api/pitches/${id}/interest`, { method: 'POST', body: JSON.stringify({ handle }) });
+                loadPitches();
+              } else if (btn.dataset.act === 'perm') {
+                await api(`/api/pitches/${id}/permissions`, {
+                  method: 'POST',
+                  body: JSON.stringify({ handle, scope: 'contact', message: 'Want to learn more.' }),
+                });
+                alert('Permission request sent — originator can approve on the Permissions tab.');
+              } else if (btn.dataset.act === 'recycle') {
+                await api(`/api/pitches/${id}/recycle-offer`, {
+                  method: 'POST',
+                  body: JSON.stringify({ offer_type: 'credit' }),
+                });
+                alert('Recycle offer opened for originator credit / terms.');
+              }
+            } catch (err) {
+              alert(err.message);
+            }
+          });
+        });
+      } catch (err) {
+        list.innerHTML = `<p class="status err">${escapeHtml(err.message)}</p>`;
+      }
+    }
+
+    async function loadBoards() {
+      const meta = $('boardMeta');
+      const list = $('boardList');
+      try {
+        const boards = await api('/api/boards');
+        meta.innerHTML = boards.map((b) =>
+          `<div class="pitch"><strong>${escapeHtml(b.title)}</strong>
+           <div class="muted">${escapeHtml(b.theme)}</div>
+           <div class="pill">${(b.score_types || []).join(' · ')}</div></div>`
+        ).join('') || '<p class="muted">No boards</p>';
+        const lb = await api('/api/boards/round-1-starlink/leaderboard');
+        const entries = lb.entries || [];
+        list.innerHTML = '<h3 style="margin:0.5rem 0">Round 1 leaderboard</h3>' +
+          (entries.length ? entries.map((e, i) =>
+            `<div class="pitch"><div class="pitch-head"><div>#${i + 1} ${escapeHtml(e.title)} ${e.starlink_flag ? '<span class="pill teal">Starlink</span>' : ''}</div><div class="score">${e.board_score ?? e.nova_score}</div></div><div class="muted">Interest ${e.interest_count || 0}</div></div>`
+          ).join('') : '<p class="muted">No enrollments yet.</p>');
+      } catch (err) {
+        meta.innerHTML = `<p class="status err">${escapeHtml(err.message)}</p>`;
+        list.innerHTML = '';
+      }
+    }
+
+    async function loadPerms() {
+      const box = $('permList');
+      box.innerHTML = '<p class="muted">Loading…</p>';
+      try {
+        const originator = $('originatorHandle').value || 'pojo';
+        const rows = await api('/api/permissions?originator=' + encodeURIComponent(originator));
+        if (!rows.length) {
+          box.innerHTML = '<p class="muted">No permission requests yet.</p>';
+          return;
+        }
+        box.innerHTML = rows.map((r) => `
+          <div class="pitch">
+            <div class="pitch-head">
+              <div><strong>${escapeHtml(r.scope)}</strong> · ${escapeHtml(r.status)}
+                <div class="muted">pitch ${escapeHtml(r.pitch_id)} · ${escapeHtml(r.message || '')}</div>
+              </div>
+            </div>
+            ${r.status === 'pending' ? `<div class="actions">
+              <button type="button" class="primary" data-id="${r.id}" data-status="approved">Approve</button>
+              <button type="button" data-id="${r.id}" data-status="denied">Deny</button>
+            </div>` : ''}
+          </div>`).join('');
+        box.querySelectorAll('button[data-id]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            await api(`/api/permissions/${btn.dataset.id}/decide`, {
+              method: 'POST',
+              body: JSON.stringify({ status: btn.dataset.status }),
+            });
+            loadPerms();
+          });
+        });
+      } catch (err) {
+        box.innerHTML = `<p class="status err">${escapeHtml(err.message)}</p>`;
+      }
+    }
+
+    $('refreshPitches').addEventListener('click', loadPitches);
+    $('refreshPerms').addEventListener('click', loadPerms);
   </script>
 </body>
 </html>
