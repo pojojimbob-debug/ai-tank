@@ -1,11 +1,11 @@
 """AI Tank — Pitch Store (scaffold)
 
-In-memory store for now. Swap for Postgres / edge DB later.
+In-memory store for now. Swap for SQLite / Postgres later.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from typing import List, Optional
 import uuid
 
@@ -17,6 +17,8 @@ class StoredPitch:
     id: str
     pitch: Pitch
     nova_score: float
+    judges: list = field(default_factory=list)
+    starlink_bonus_applied: bool = False
     judged: bool = False
 
 
@@ -27,7 +29,14 @@ class PitchStore:
     def submit(self, pitch: Pitch) -> StoredPitch:
         pid = str(uuid.uuid4())[:8]
         result = score_pitch(pitch)
-        stored = StoredPitch(id=pid, pitch=pitch, nova_score=result["nova_score"], judged=True)
+        stored = StoredPitch(
+            id=pid,
+            pitch=pitch,
+            nova_score=result["nova_score"],
+            judges=result["judges"],
+            starlink_bonus_applied=result["starlink_bonus_applied"],
+            judged=True,
+        )
         self._pitches[pid] = stored
         return stored
 
@@ -38,7 +47,6 @@ class PitchStore:
         return self._pitches.get(pid)
 
 
-# Singleton for the scaffold
 store = PitchStore()
 
 

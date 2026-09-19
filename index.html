@@ -50,6 +50,15 @@
       color: var(--text);
       font-size: 1rem;
     }
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin: 0 0 1rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    .check-row input { width: auto; margin: 0; }
     button {
       background: var(--accent);
       color: #000;
@@ -61,6 +70,24 @@
       font-size: 1rem;
     }
     button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.5; cursor: wait; }
+    .status {
+      margin-top: 1rem;
+      color: var(--muted);
+      min-height: 1.4em;
+    }
+    .status.ok { color: var(--accent); }
+    .status.err { color: #ff6b8a; }
+    .verdict {
+      display: none;
+      background: #12121f;
+      border: 1px solid #2a2a3e;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .verdict h2 { margin-bottom: 0.4rem; }
+    .judge-row { color: var(--muted); font-size: 0.95rem; margin-top: 0.35rem; }
     .leaderboard { margin-top: 2rem; }
     .pitch-card {
       background: #12121f;
@@ -70,6 +97,16 @@
       margin-bottom: 1rem;
     }
     .score { color: var(--accent); font-weight: 700; }
+    .badge {
+      display: inline-block;
+      margin-left: 0.4rem;
+      font-size: 0.75rem;
+      color: #000;
+      background: var(--accent);
+      border-radius: 999px;
+      padding: 0.05rem 0.5rem;
+      font-weight: 700;
+    }
     footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.9rem; }
   </style>
 </head>
@@ -90,32 +127,106 @@
         <textarea id="solution" rows="3" placeholder="How does AI fix it?" required></textarea>
         <label for="why">Why Now / Why You</label>
         <textarea id="why" rows="2" placeholder="Why this matters now"></textarea>
-        <button type="submit">Pitch It</button>
+        <label class="check-row" for="uses_starlink">
+          <input type="checkbox" id="uses_starlink">
+          Uses Starlink, satellite, or remote/edge connectivity (15% Nova bonus)
+        </label>
+        <button type="submit" id="submitBtn">Pitch It</button>
+        <p class="status" id="status"></p>
       </form>
+    </section>
+    <section class="verdict" id="verdict">
+      <h2 id="verdictTitle"></h2>
+      <p>Nova Score: <span class="score" id="verdictScore"></span></p>
+      <div id="verdictJudges"></div>
     </section>
     <section class="leaderboard">
       <h2>Top Pitches</h2>
-      <div id="pitches">
-        <div class="pitch-card">
-          <strong>Orbital Farm AI</strong> — <span class="score">92</span><br>
-          <small>Starlink + satellite data for precision agriculture in remote areas.</small>
-        </div>
-        <div class="pitch-card">
-          <strong>Edge DB Sync</strong> — <span class="score">87</span><br>
-          <small>Distributed AI database that works offline via Starlink mesh.</small>
-        </div>
-      </div>
+      <div id="pitches"></div>
     </section>
   </main>
   <footer>
-    AI Tank — Built to spark American AI creativity.
+    AI Tank — Round 1 prize is a feature on this board. Simulated judges until LLM wiring.
   </footer>
   <script>
-    document.getElementById('pitchForm').addEventListener('submit', function(e) {
+    const form = document.getElementById('pitchForm');
+    const statusEl = document.getElementById('status');
+    const submitBtn = document.getElementById('submitBtn');
+    const pitchesEl = document.getElementById('pitches');
+    const verdictEl = document.getElementById('verdict');
+
+    function setStatus(msg, kind) {
+      statusEl.textContent = msg;
+      statusEl.className = 'status' + (kind ? ' ' + kind : '');
+    }
+
+    function renderBoard(rows) {
+      if (!rows.length) {
+        pitchesEl.innerHTML = '<p class="status">No pitches yet. First one up is first on the board.</p>';
+        return;
+      }
+      pitchesEl.innerHTML = rows.map(function (p) {
+        const badge = p.starlink ? '<span class="badge">STARLINK</span>' : '';
+        const blurb = (p.problem || p.solution || '').slice(0, 140);
+        return '<div class="pitch-card"><strong>' +
+          escapeHtml(p.title) + '</strong> — <span class="score">' +
+          p.nova_score + '</span>' + badge +
+          '<br><small>' + escapeHtml(blurb) + '</small></div>';
+      }).join('');
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, function (c) {
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+      });
+    }
+
+    async function loadBoard() {
+      const res = await fetch('/api/leaderboard');
+      if (!res.ok) throw new Error('leaderboard ' + res.status);
+      renderBoard(await res.json());
+    }
+
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
-      const title = document.getElementById('title').value;
-      alert('Pitch received: ' + title + '\n\n(AI judges will score it soon. This is a scaffold — full judging coming.)');
-      this.reset();
+      submitBtn.disabled = true;
+      setStatus('Judges are scoring…');
+      verdictEl.style.display = 'none';
+      const payload = {
+        title: document.getElementById('title').value.trim(),
+        problem: document.getElementById('problem').value.trim(),
+        solution: document.getElementById('solution').value.trim(),
+        why: document.getElementById('why').value.trim(),
+        uses_starlink: document.getElementById('uses_starlink').checked
+      };
+      try {
+        const res = await fetch('/api/pitch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || ('pitch ' + res.status));
+        document.getElementById('verdictTitle').textContent = payload.title;
+        document.getElementById('verdictScore').textContent = data.nova_score +
+          (data.starlink_bonus_applied ? ' (Starlink bonus)' : '');
+        document.getElementById('verdictJudges').innerHTML = (data.judges || []).map(function (j) {
+          return '<div class="judge-row"><strong>' + escapeHtml(j.judge) +
+            '</strong> — ' + j.score + '<br>' + escapeHtml(j.rationale) + '</div>';
+        }).join('');
+        verdictEl.style.display = 'block';
+        setStatus('Pitch ' + data.id + ' is on the board.', 'ok');
+        form.reset();
+        await loadBoard();
+      } catch (err) {
+        setStatus(err.message || 'Could not reach the tank. Run python app.py first.', 'err');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    loadBoard().catch(function () {
+      pitchesEl.innerHTML = '<p class="status err">Leaderboard offline. Start the Flask app.</p>';
     });
   </script>
 </body>
