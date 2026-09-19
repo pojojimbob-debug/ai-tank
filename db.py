@@ -1,4 +1,4 @@
-"""AI Tank — SQLite persistence (consistent schema)."""
+"""AI Tank — SQLite persistence."""
 
 from __future__ import annotations
 
@@ -60,8 +60,7 @@ def init_db() -> None:
               nova_score REAL,
               score_breakdown TEXT,
               created_at TEXT NOT NULL,
-              updated_at TEXT NOT NULL,
-              FOREIGN KEY (originator_id) REFERENCES users(id)
+              updated_at TEXT NOT NULL
             );
 
             CREATE TABLE IF NOT EXISTS interests (
@@ -69,9 +68,7 @@ def init_db() -> None:
               pitch_id TEXT NOT NULL,
               investor_id TEXT NOT NULL,
               created_at TEXT NOT NULL,
-              UNIQUE(pitch_id, investor_id),
-              FOREIGN KEY (pitch_id) REFERENCES pitches(id),
-              FOREIGN KEY (investor_id) REFERENCES users(id)
+              UNIQUE(pitch_id, investor_id)
             );
 
             CREATE TABLE IF NOT EXISTS permission_requests (
@@ -83,8 +80,7 @@ def init_db() -> None:
               message TEXT DEFAULT '',
               status TEXT NOT NULL DEFAULT 'pending',
               created_at TEXT NOT NULL,
-              decided_at TEXT,
-              FOREIGN KEY (pitch_id) REFERENCES pitches(id)
+              decided_at TEXT
             );
 
             CREATE TABLE IF NOT EXISTS boards (
@@ -104,9 +100,7 @@ def init_db() -> None:
               pitch_id TEXT NOT NULL,
               board_id TEXT NOT NULL,
               enrolled_at TEXT NOT NULL,
-              PRIMARY KEY (pitch_id, board_id),
-              FOREIGN KEY (pitch_id) REFERENCES pitches(id),
-              FOREIGN KEY (board_id) REFERENCES boards(id)
+              PRIMARY KEY (pitch_id, board_id)
             );
 
             CREATE TABLE IF NOT EXISTS score_entries (
@@ -117,8 +111,7 @@ def init_db() -> None:
               value REAL NOT NULL,
               breakdown TEXT,
               source TEXT NOT NULL,
-              created_at TEXT NOT NULL,
-              FOREIGN KEY (pitch_id) REFERENCES pitches(id)
+              created_at TEXT NOT NULL
             );
 
             CREATE TABLE IF NOT EXISTS idea_clusters (
@@ -138,8 +131,7 @@ def init_db() -> None:
               terms TEXT DEFAULT '',
               status TEXT NOT NULL DEFAULT 'pending',
               created_at TEXT NOT NULL,
-              resolved_at TEXT,
-              FOREIGN KEY (pitch_id) REFERENCES pitches(id)
+              resolved_at TEXT
             );
             """
         )
@@ -153,13 +145,13 @@ def _seed(conn: sqlite3.Connection) -> None:
         ("voter_demo", ["voter"]),
         ("recycle_bot", ["bot"]),
     ):
-        if not conn.execute("SELECT id FROM users WHERE handle = ?", (handle,)).fetchone():
+        if not conn.execute("SELECT 1 FROM users WHERE handle = ?", (handle,)).fetchone():
             conn.execute(
                 "INSERT INTO users (id, handle, roles, created_at) VALUES (?, ?, ?, ?)",
                 (_id(), handle, json.dumps(roles), _now()),
             )
 
-    if not conn.execute("SELECT id FROM boards WHERE slug = ?", ("round-1-starlink",)).fetchone():
+    if not conn.execute("SELECT 1 FROM boards WHERE slug = ?", ("round-1-starlink",)).fetchone():
         conn.execute(
             """
             INSERT INTO boards (
@@ -195,14 +187,13 @@ def ensure_user(handle: str, roles: Optional[list] = None) -> dict:
     existing = get_user_by_handle(handle)
     if existing:
         return existing
-    uid = _id()
     with connect() as conn:
         conn.execute(
             "INSERT INTO users (id, handle, roles, created_at) VALUES (?, ?, ?, ?)",
-            (uid, handle, json.dumps(roles or ["originator"]), _now()),
+            (_id(), handle, json.dumps(roles or ["originator"]), _now()),
         )
     user = get_user_by_handle(handle)
-    assert user is not None
+    assert user
     return user
 
 
@@ -254,7 +245,7 @@ def create_pitch(
                 (_id(), pid, float(score_result["final_score"]), breakdown, now),
             )
     pitch = get_pitch(pid)
-    assert pitch is not None
+    assert pitch
     return pitch
 
 
@@ -306,8 +297,7 @@ def add_interest(pitch_id: str, investor_id: str) -> dict:
                 (pitch_id, investor_id),
             ).fetchone()
             return dict(row)
-        row = conn.execute("SELECT * FROM interests WHERE id = ?", (iid,)).fetchone()
-        return dict(row)
+        return dict(conn.execute("SELECT * FROM interests WHERE id = ?", (iid,)).fetchone())
 
 
 def create_permission_request(
@@ -385,10 +375,7 @@ def get_board_by_slug(slug: str) -> Optional[dict]:
 def enroll_pitch(pitch_id: str, board_id: str) -> dict:
     with connect() as conn:
         conn.execute(
-            """
-            INSERT OR IGNORE INTO board_enrollments (pitch_id, board_id, enrolled_at)
-            VALUES (?, ?, ?)
-            """,
+            "INSERT OR IGNORE INTO board_enrollments (pitch_id, board_id, enrolled_at) VALUES (?, ?, ?)",
             (pitch_id, board_id, _now()),
         )
         pitch = conn.execute("SELECT * FROM pitches WHERE id = ?", (pitch_id,)).fetchone()
@@ -407,14 +394,7 @@ def enroll_pitch(pitch_id: str, board_id: str) -> dict:
                       (id, pitch_id, board_id, score_type, value, breakdown, source, created_at)
                     VALUES (?, ?, ?, 'judge_panel', ?, ?, 'scoring_pack', ?)
                     """,
-                    (
-                        _id(),
-                        pitch_id,
-                        board_id,
-                        float(pitch["nova_score"]),
-                        pitch["score_breakdown"],
-                        _now(),
-                    ),
+                    (_id(), pitch_id, board_id, float(pitch["nova_score"]), pitch["score_breakdown"], _now()),
                 )
     return {"pitch_id": pitch_id, "board_id": board_id}
 
@@ -515,10 +495,7 @@ def cluster_similar(limit_scan: int = 100) -> list[dict]:
                 continue
             cid = _id()
             conn.execute(
-                """
-                INSERT INTO idea_clusters (id, label, pitch_ids, notes, created_at)
-                VALUES (?, ?, ?, ?, ?)
-                """,
+                "INSERT INTO idea_clusters (id, label, pitch_ids, notes, created_at) VALUES (?, ?, ?, ?, ?)",
                 (cid, label, json.dumps(ids), "auto-cluster by keyword", _now()),
             )
             clusters.append({"id": cid, "label": label, "pitch_ids": ids})
