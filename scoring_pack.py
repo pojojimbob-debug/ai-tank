@@ -41,7 +41,7 @@ def _load_prompts() -> dict[str, str]:
     return prompts
 
 
-def _clamp(n: float, lo: float = 0, hi: float = 100) -> float:
+def _clamp(n: float, lo: float = 0.0, hi: float = 100.0) -> float:
     return max(lo, min(hi, n))
 
 
@@ -64,8 +64,8 @@ def _heuristic(key: str, pitch: Pitch) -> tuple[float, str]:
 
 
 def _grok(pitch: Pitch, prompts: dict[str, str]) -> Optional[dict[str, tuple[float, str]]]:
-    key = os.environ.get("XAI_API_KEY") or os.environ.get("GROK_API_KEY")
-    if not key:
+    api_key = os.environ.get("XAI_API_KEY") or os.environ.get("GROK_API_KEY")
+    if not api_key:
         return None
     body = {
         "model": os.environ.get("XAI_MODEL", "grok-2-latest"),
@@ -84,7 +84,7 @@ def _grok(pitch: Pitch, prompts: dict[str, str]) -> Optional[dict[str, tuple[flo
     req = urllib.request.Request(
         "https://api.x.ai/v1/chat/completions",
         data=json.dumps(body).encode("utf-8"),
-        headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
         method="POST",
     )
     try:
@@ -102,6 +102,7 @@ def _grok(pitch: Pitch, prompts: dict[str, str]) -> Optional[dict[str, tuple[flo
 
 
 def score_pitch(pitch: Pitch) -> dict:
+    """Single entry point for the scoring pack."""
     prompts = _load_prompts()
     names = {"builder": "The Builder", "market": "The Market Shark", "impact": "The Impact Judge"}
     grok = _grok(pitch, prompts)
