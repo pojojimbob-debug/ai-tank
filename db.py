@@ -1,4 +1,4 @@
-"""AI Tank — SQLite persistence."""
+"""AI Tank — SQLite persistence (consistent schema)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterator, Optional
+from typing import Iterator, Optional
 
 DB_PATH = Path(__file__).resolve().parent / "aitank.db"
 
@@ -147,37 +147,33 @@ def init_db() -> None:
 
 
 def _seed(conn: sqlite3.Connection) -> None:
-    # Demo users
     for handle, roles in (
         ("pojo", ["originator", "admin"]),
         ("investor_demo", ["investor"]),
         ("voter_demo", ["voter"]),
         ("recycle_bot", ["bot"]),
     ):
-        row = conn.execute("SELECT id FROM users WHERE handle = ?", (handle,)).fetchone()
-        if not row:
+        if not conn.execute("SELECT id FROM users WHERE handle = ?", (handle,)).fetchone():
             conn.execute(
                 "INSERT INTO users (id, handle, roles, created_at) VALUES (?, ?, ?, ?)",
                 (_id(), handle, json.dumps(roles), _now()),
             )
 
-    board = conn.execute("SELECT id FROM boards WHERE slug = ?", ("round-1-starlink",)).fetchone()
-    if not board:
+    if not conn.execute("SELECT id FROM boards WHERE slug = ?", ("round-1-starlink",)).fetchone():
         conn.execute(
             """
-            INSERT INTO boards (id, slug, title, theme, window_start, window_end,
-              score_types, rules, prizes, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'open')
+            INSERT INTO boards (
+              id, slug, title, theme, window_start, window_end,
+              score_types, rules, prizes, status
+            ) VALUES (?, ?, ?, ?, NULL, NULL, ?, ?, ?, 'open')
             """,
             (
                 _id(),
                 "round-1-starlink",
                 "Round 1 — Starlink / Orbital / Edge",
                 "AI ideas using Starlink, orbital data, or edge compute for underserved areas.",
-                None,
-                None,
                 json.dumps(["judge_panel", "vote", "popularity"]),
-                json.dumps({"starlink_checkbox": True, "eligibility": "public pitches"}),
+                json.dumps({"starlink_checkbox": True}),
                 json.dumps(
                     {
                         "top_10_pct": "Featured on site",
@@ -205,7 +201,9 @@ def ensure_user(handle: str, roles: Optional[list] = None) -> dict:
             "INSERT INTO users (id, handle, roles, created_at) VALUES (?, ?, ?, ?)",
             (uid, handle, json.dumps(roles or ["originator"]), _now()),
         )
-    return get_user_by_handle(handle)  # type: ignore
+    user = get_user_by_handle(handle)
+    assert user is not None
+    return user
 
 
 def create_pitch(
@@ -222,7 +220,7 @@ def create_pitch(
     pid = _id()
     now = _now()
     breakdown = json.dumps(score_result) if score_result else None
-    nova = score_result.get("final_score") if score_result else None
+    nova = float(score_result["final_score"]) if score_result else None
     with connect() as conn:
         conn.execute(
             """
@@ -234,10 +232,10 @@ def create_pitch(
             (
                 pid,
                 originator_id,
-                title,
-                problem,
-                solution,
-                why_now,
+                title.strip(),
+                problem.strip(),
+                solution.strip(),
+                (why_now or "").strip(),
                 1 if starlink_flag else 0,
                 status,
                 nova,
@@ -253,9 +251,11 @@ def create_pitch(
                   (id, pitch_id, board_id, score_type, value, breakdown, source, created_at)
                 VALUES (?, ?, NULL, 'judge_panel', ?, ?, 'scoring_pack', ?)
                 """,
-                ( _id(), pid, float(score_result["final_score"]), json.dumps(score_result), now),
+                (_id(), pid, float(score_result["final_score"]), breakdown, now),
             )
-    return get_pitch(pid)  # type: ignore
+    pitch = get_pitch(pid)
+    assert pitch is not None
+    return pitch
 
 
 def get_pitch(pid: str) -> Optional[dict]:
@@ -306,8 +306,8 @@ def add_interest(pitch_id: str, investor_id: str) -> dict:
                 (pitch_id, investor_id),
             ).fetchone()
             return dict(row)
-    with connect() as conn:
-        return dict(conn.execute("SELECT * FROM interests WHERE id = ?", (iid,)).fetchone())
+        row = conn.execute("SELECT * FROM interests WHERE id = ?", (iid,)).fetchone()
+        return dict(row)
 
 
 def create_permission_request(
@@ -328,8 +328,21 @@ def create_permission_request(
             """,
             (rid, pitch_id, investor_id, originator_id, scope, message, _now()),
         )
-        row = conn.execute("SELECT * FROM permission_requests WHERE id = ?", (rid,)).fetchone()
-        return dict(row)
+        return dict(conn.execute("SELECT * FROM permission_requests WHERE id = ?", (rid,)).fetchone())
+
+
+def list_permission_requests(originator_id: Optional[str] = None) -> list[dict]:
+    with connect() as conn:
+        if originator_id:
+            rows = conn.execute(
+                "SELECT * FROM permission_requests WHERE originator_id = ? ORDER BY created_at DESC",
+                (originator_id,),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM permission_requests ORDER BY created_at DESC"
+            ).fetchall()
+        return [dict(r) for r in rows]
 
 
 def decide_permission(request_id: str, status: str) -> Optional[dict]:
@@ -378,7 +391,6 @@ def enroll_pitch(pitch_id: str, board_id: str) -> dict:
             """,
             (pitch_id, board_id, _now()),
         )
-        # Mirror judge score onto this board if pitch already scored
         pitch = conn.execute("SELECT * FROM pitches WHERE id = ?", (pitch_id,)).fetchone()
         if pitch and pitch["nova_score"] is not None:
             exists = conn.execute(
@@ -467,8 +479,7 @@ def create_recycle_offer(
             """,
             (oid, pitch_id, originator_id, opened_by, offer_type, terms, _now()),
         )
-        row = conn.execute("SELECT * FROM recycle_offers WHERE id = ?", (oid,)).fetchone()
-        return dict(row)
+        return dict(conn.execute("SELECT * FROM recycle_offers WHERE id = ?", (oid,)).fetchone())
 
 
 def decide_recycle_offer(offer_id: str, status: str) -> Optional[dict]:
@@ -483,8 +494,12 @@ def decide_recycle_offer(offer_id: str, status: str) -> Optional[dict]:
         return dict(row) if row else None
 
 
+def list_recycle_offers() -> list[dict]:
+    with connect() as conn:
+        return [dict(r) for r in conn.execute("SELECT * FROM recycle_offers ORDER BY created_at DESC")]
+
+
 def cluster_similar(limit_scan: int = 100) -> list[dict]:
-    """Naive keyword clustering stub for recycling bots."""
     pitches = list_pitches(limit=limit_scan)
     buckets: dict[str, list[str]] = {}
     keywords = ("starlink", "edge", "offline", "farm", "health", "school", "mesh", "satellite")
@@ -510,15 +525,17 @@ def cluster_similar(limit_scan: int = 100) -> list[dict]:
     return clusters
 
 
-def row_to_public_pitch(p: dict) -> dict:
+def public_pitch(p: dict) -> dict:
     breakdown = None
-    if p.get("score_breakdown"):
+    raw = p.get("score_breakdown")
+    if raw:
         try:
-            breakdown = json.loads(p["score_breakdown"])
-        except json.JSONDecodeError:
+            breakdown = json.loads(raw)
+        except (TypeError, json.JSONDecodeError):
             breakdown = None
     return {
         "id": p["id"],
+        "originator_id": p.get("originator_id"),
         "title": p["title"],
         "problem": p["problem"],
         "solution": p["solution"],

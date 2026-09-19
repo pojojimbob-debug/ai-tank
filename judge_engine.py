@@ -1,9 +1,6 @@
-"""AI Tank judge engine — thin compatibility layer over the scoring pack.
+"""Compatibility layer — scoring pack is the real engine."""
 
-Prefer: from scoring_pack import Pitch, score_pitch
-"""
-
-from scoring_pack import Pitch, score_pitch, STARLINK_BONUS, JUDGES_PATH
+from scoring_pack import JUDGES_PATH, Pitch, STARLINK_BONUS, score_pitch
 
 __all__ = ["Pitch", "score_pitch", "STARLINK_BONUS", "JUDGES_PATH"]
 
