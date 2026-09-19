@@ -13,13 +13,13 @@ from flask import Flask, jsonify, request, send_from_directory
 import db
 from scoring_pack import Pitch, score_pitch
 
-app = Flask(__name__, static_folder=None)
+app = Flask(__name__)
 ROOT = Path(__file__).resolve().parent
 
 db.init_db()
 
 
-def _json_error(msg: str, code: int = 400):
+def err(msg: str, code: int = 400):
     return jsonify({"error": msg}), code
 
 
@@ -29,7 +29,7 @@ def home():
 
 
 @app.post("/api/pitches")
-def api_create_pitch():
+def create_pitch():
     data = request.get_json(force=True) or {}
     title = (data.get("title") or "").strip()
     problem = (data.get("problem") or "").strip()
@@ -37,10 +37,10 @@ def api_create_pitch():
     why_now = (data.get("why_now") or data.get("why") or "").strip()
     starlink = bool(data.get("starlink_flag") or data.get("uses_starlink"))
     handle = (data.get("handle") or "pojo").strip() or "pojo"
-    enroll_round1 = data.get("enroll_round1", True)
+    enroll_round1 = bool(data.get("enroll_round1", True))
 
     if not title or not problem or not solution:
-        return _json_error("title, problem, and solution are required")
+        return err("title, problem, and solution are required")
 
     user = db.ensure_user(handle, ["originator"])
     result = score_pitch(
@@ -61,51 +61,48 @@ def api_create_pitch():
         starlink_flag=starlink,
         score_result=result,
     )
-
     if enroll_round1:
         board = db.get_board_by_slug("round-1-starlink")
         if board:
             db.enroll_pitch(pitch["id"], board["id"])
-
     return jsonify(db.public_pitch(pitch)), 201
 
 
 @app.get("/api/pitches")
-def api_list_pitches():
+def list_pitches():
     return jsonify([db.public_pitch(p) for p in db.list_pitches()])
 
 
 @app.get("/api/pitches/<pid>")
-def api_get_pitch(pid: str):
+def get_pitch(pid: str):
     pitch = db.get_pitch(pid)
     if not pitch:
-        return _json_error("pitch not found", 404)
+        return err("pitch not found", 404)
     return jsonify(db.public_pitch(pitch))
 
 
 @app.post("/api/pitches/<pid>/interest")
-def api_interest(pid: str):
+def interest(pid: str):
     pitch = db.get_pitch(pid)
     if not pitch:
-        return _json_error("pitch not found", 404)
+        return err("pitch not found", 404)
     data = request.get_json(force=True) or {}
     handle = (data.get("handle") or "investor_demo").strip() or "investor_demo"
     investor = db.ensure_user(handle, ["investor"])
     row = db.add_interest(pid, investor["id"])
-    updated = db.get_pitch(pid)
-    return jsonify({"interest": row, "pitch": db.public_pitch(updated)})
+    return jsonify({"interest": row, "pitch": db.public_pitch(db.get_pitch(pid))})
 
 
 @app.post("/api/pitches/<pid>/permissions")
-def api_permission_request(pid: str):
+def permission_request(pid: str):
     pitch = db.get_pitch(pid)
     if not pitch:
-        return _json_error("pitch not found", 404)
+        return err("pitch not found", 404)
     data = request.get_json(force=True) or {}
     handle = (data.get("handle") or "investor_demo").strip() or "investor_demo"
     scope = (data.get("scope") or "contact").strip()
     if scope not in ("contact", "data", "evaluate"):
-        return _json_error("scope must be contact|data|evaluate")
+        return err("scope must be contact|data|evaluate")
     investor = db.ensure_user(handle, ["investor"])
     row = db.create_permission_request(
         pitch_id=pid,
@@ -118,11 +115,11 @@ def api_permission_request(pid: str):
 
 
 @app.get("/api/permissions")
-def api_list_permissions():
-    originator_handle = request.args.get("originator")
+def list_permissions():
+    handle = request.args.get("originator")
     originator_id = None
-    if originator_handle:
-        user = db.get_user_by_handle(originator_handle)
+    if handle:
+        user = db.get_user_by_handle(handle)
         if not user:
             return jsonify([])
         originator_id = user["id"]
@@ -130,61 +127,62 @@ def api_list_permissions():
 
 
 @app.post("/api/permissions/<rid>/decide")
-def api_decide_permission(rid: str):
+def decide_permission(rid: str):
     data = request.get_json(force=True) or {}
     status = (data.get("status") or "").strip()
+    # UI may send approved/denied
+    status = {"approved": "approved", "denied": "denied", "countered": "countered"}.get(status, status)
     try:
         row = db.decide_permission(rid, status)
     except ValueError as e:
-        return _json_error(str(e))
+        return err(str(e))
     if not row:
-        return _json_error("request not found", 404)
+        return err("request not found", 404)
     return jsonify(row)
 
 
 @app.get("/api/boards")
-def api_boards():
+def boards():
     return jsonify(db.list_boards())
 
 
 @app.post("/api/boards/<slug>/enroll")
-def api_enroll(slug: str):
+def enroll(slug: str):
     board = db.get_board_by_slug(slug)
     if not board:
-        return _json_error("board not found", 404)
+        return err("board not found", 404)
     data = request.get_json(force=True) or {}
     pitch_id = (data.get("pitch_id") or "").strip()
     if not pitch_id or not db.get_pitch(pitch_id):
-        return _json_error("valid pitch_id required")
+        return err("valid pitch_id required")
     return jsonify(db.enroll_pitch(pitch_id, board["id"]))
 
 
 @app.get("/api/boards/<slug>/leaderboard")
-def api_board_leaderboard(slug: str):
+def leaderboard(slug: str):
     board = db.get_board_by_slug(slug)
     if not board:
-        return _json_error("board not found", 404)
+        return err("board not found", 404)
     return jsonify({"board": board, "entries": db.board_leaderboard(slug)})
 
 
 @app.post("/api/boards/<slug>/vote")
-def api_vote(slug: str):
+def vote(slug: str):
     board = db.get_board_by_slug(slug)
     if not board:
-        return _json_error("board not found", 404)
+        return err("board not found", 404)
     data = request.get_json(force=True) or {}
     pitch_id = (data.get("pitch_id") or "").strip()
     if not pitch_id or not db.get_pitch(pitch_id):
-        return _json_error("valid pitch_id required")
-    value = float(data.get("value", 1))
-    return jsonify(db.add_vote(pitch_id, board["id"], value))
+        return err("valid pitch_id required")
+    return jsonify(db.add_vote(pitch_id, board["id"], float(data.get("value", 1))))
 
 
 @app.post("/api/pitches/<pid>/recycle-offer")
-def api_recycle_offer(pid: str):
+def recycle_offer(pid: str):
     pitch = db.get_pitch(pid)
     if not pitch:
-        return _json_error("pitch not found", 404)
+        return err("pitch not found", 404)
     data = request.get_json(force=True) or {}
     bot = db.ensure_user("recycle_bot", ["bot"])
     row = db.create_recycle_offer(
@@ -192,35 +190,35 @@ def api_recycle_offer(pid: str):
         originator_id=pitch["originator_id"],
         opened_by=bot["id"],
         offer_type=(data.get("offer_type") or "credit").strip(),
-        terms=(data.get("terms") or "Credit + optional collab if reused on a later board.").strip(),
+        terms=(data.get("terms") or "Credit + optional collab if reused later.").strip(),
     )
     return jsonify(row), 201
 
 
 @app.post("/api/recycle-offers/<oid>/decide")
-def api_decide_recycle(oid: str):
+def decide_recycle(oid: str):
     data = request.get_json(force=True) or {}
     try:
         row = db.decide_recycle_offer(oid, (data.get("status") or "").strip())
     except ValueError as e:
-        return _json_error(str(e))
+        return err(str(e))
     if not row:
-        return _json_error("offer not found", 404)
+        return err("offer not found", 404)
     return jsonify(row)
 
 
 @app.get("/api/recycle-offers")
-def api_list_recycle():
+def list_recycle():
     return jsonify(db.list_recycle_offers())
 
 
 @app.post("/api/bots/cluster")
-def api_cluster():
+def cluster():
     return jsonify({"clusters": db.cluster_similar()})
 
 
 @app.get("/api/health")
-def api_health():
+def health():
     return jsonify({"ok": True, "service": "ai-tank"})
 
 
