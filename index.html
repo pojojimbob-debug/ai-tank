@@ -6,256 +6,498 @@
   <title>AI Tank — Pitch. Interest. Build.</title>
   <style>
     :root {
-      --ink: #14110f;
-      --paper: #f6f0e6;
-      --card: #fffdf8;
-      --amber: #e8a317;
-      --amber-deep: #c4840a;
-      --teal: #0f6e6a;
-      --muted: #6d6458;
-      --line: #e4d8c4;
-      --danger: #a33b2a;
+      --ink: #15110e;
+      --paper: #f7f1e7;
+      --card: #fffdf9;
+      --amber: #f0a820;
+      --amber-deep: #c47e08;
+      --teal: #0d7a74;
+      --teal-soft: #d8f3ef;
+      --muted: #6f675c;
+      --line: #e6dcc8;
+      --danger: #b33d2c;
+      --ok: #1a7a4c;
+      --shadow: 0 12px 40px rgba(21, 17, 14, 0.08);
+      --radius: 20px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: "Segoe UI", system-ui, sans-serif;
-      background:
-        radial-gradient(1200px 500px at 10% -10%, #ffe7b0 0%, transparent 55%),
-        radial-gradient(900px 400px at 100% 0%, #c8ebe4 0%, transparent 50%),
-        var(--paper);
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
       color: var(--ink);
       line-height: 1.5;
       min-height: 100vh;
+      background:
+        radial-gradient(1000px 480px at 8% -8%, #ffe6a8 0%, transparent 55%),
+        radial-gradient(800px 420px at 100% 0%, #bfece4 0%, transparent 50%),
+        radial-gradient(600px 300px at 50% 100%, #ffe8c8 0%, transparent 45%),
+        var(--paper);
     }
-    a { color: var(--teal); }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .shell { max-width: 1080px; margin: 0 auto; padding: 1.25rem 1.1rem 3rem; }
+
     header {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 2rem 1.25rem 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: end;
-      justify-content: space-between;
+      display: flex; flex-wrap: wrap; gap: 1rem;
+      align-items: flex-end; justify-content: space-between;
+      margin-bottom: 1.25rem;
+      animation: rise 0.55s var(--ease) both;
     }
     .brand h1 {
-      font-size: clamp(2rem, 4vw, 2.8rem);
-      letter-spacing: -0.03em;
+      font-size: clamp(2rem, 5vw, 2.85rem);
+      letter-spacing: -0.04em;
+      line-height: 1.05;
     }
-    .brand h1 span { color: var(--amber-deep); }
-    .brand p { color: var(--muted); max-width: 36rem; margin-top: 0.35rem; }
-    nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    nav button, .btn {
-      border: 1px solid var(--ink);
-      background: var(--ink);
-      color: var(--paper);
-      padding: 0.55rem 0.9rem;
+    .brand h1 em {
+      font-style: normal;
+      color: var(--amber-deep);
+      position: relative;
+    }
+    .brand h1 em::after {
+      content: "";
+      position: absolute; left: 0; right: 0; bottom: 0.08em;
+      height: 0.28em; background: rgba(240, 168, 32, 0.35);
+      border-radius: 4px; z-index: -1;
+    }
+    .brand p { color: var(--muted); max-width: 34rem; margin-top: 0.4rem; }
+
+    .tabs {
+      display: flex; gap: 0.4rem; flex-wrap: wrap;
+      background: rgba(255,253,249,0.7);
+      border: 1px solid var(--line);
+      padding: 0.35rem;
       border-radius: 999px;
-      font-weight: 650;
-      cursor: pointer;
+      backdrop-filter: blur(8px);
     }
-    nav button.ghost, .btn.ghost {
-      background: transparent;
-      color: var(--ink);
+    .tabs button {
+      border: 0; background: transparent; color: var(--muted);
+      padding: 0.5rem 0.95rem; border-radius: 999px;
+      font-weight: 650; transition: all 0.2s var(--ease);
     }
-    nav button.active {
-      background: var(--amber);
-      border-color: var(--amber-deep);
-      color: var(--ink);
+    .tabs button:hover { color: var(--ink); background: rgba(255,255,255,0.7); }
+    .tabs button.active {
+      background: var(--ink); color: var(--paper);
+      box-shadow: 0 6px 16px rgba(21,17,14,0.18);
     }
-    main {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 1.25rem 3rem;
+
+    main { display: grid; gap: 1rem; }
+    .panel {
+      display: none;
+      animation: rise 0.4s var(--ease) both;
+    }
+    .panel.active { display: grid; gap: 1rem; }
+    .hero {
       display: grid;
-      gap: 1.25rem;
-    }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
+      grid-template-columns: 1.25fr 0.85fr;
       gap: 1rem;
     }
     @media (max-width: 860px) {
-      .hero-grid { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
+      .tabs { width: 100%; }
+      .tabs button { flex: 1; text-align: center; padding-inline: 0.5rem; font-size: 0.9rem; }
     }
+
     .card {
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: var(--radius);
       padding: 1.15rem 1.2rem;
-      box-shadow: 0 10px 30px rgba(20, 17, 15, 0.04);
+      box-shadow: var(--shadow);
+      transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
     }
-    .card h2 { font-size: 1.15rem; margin-bottom: 0.75rem; }
-    label { display: block; font-size: 0.85rem; font-weight: 650; margin: 0.55rem 0 0.25rem; }
-    input, textarea, select {
+    .card:hover { transform: translateY(-2px); box-shadow: 0 16px 44px rgba(21,17,14,0.1); }
+    .card h2 { font-size: 1.15rem; letter-spacing: -0.02em; margin-bottom: 0.35rem; }
+    .lede { color: var(--muted); font-size: 0.95rem; margin-bottom: 0.85rem; }
+
+    label { display: block; font-size: 0.82rem; font-weight: 700; margin: 0.65rem 0 0.28rem; }
+    .field { position: relative; }
+    input, textarea {
       width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 0.65rem 0.75rem;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 0.7rem 0.8rem;
       background: #fff;
       color: var(--ink);
-      font: inherit;
+      transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
     }
-    textarea { resize: vertical; min-height: 72px; }
-    .row { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
-    .check { display: flex; gap: 0.5rem; align-items: center; margin: 0.75rem 0; font-size: 0.95rem; }
-    .check input { width: auto; }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 4px rgba(13, 122, 116, 0.15);
+    }
+    textarea { resize: vertical; min-height: 78px; }
+    .hint {
+      position: absolute; right: 0.7rem; bottom: 0.55rem;
+      font-size: 0.72rem; color: var(--muted); pointer-events: none;
+    }
+
+    .checks { display: grid; gap: 0.45rem; margin: 0.85rem 0 0.4rem; }
+    .check {
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.55rem 0.7rem;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+      transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+      user-select: none;
+    }
+    .check:hover { border-color: #d2c4a8; }
+    .check:has(input:checked) {
+      border-color: var(--teal);
+      background: var(--teal-soft);
+    }
+    .check input { width: 1.05rem; height: 1.05rem; accent-color: var(--teal); }
+
+    .btn {
+      border: 0;
+      background: var(--ink);
+      color: var(--paper);
+      padding: 0.7rem 1.15rem;
       border-radius: 999px;
-      padding: 0.2rem 0.55rem;
-      background: #f3e6c8;
-      color: var(--ink);
-      font-size: 0.78rem;
-      font-weight: 700;
+      font-weight: 750;
+      letter-spacing: -0.01em;
+      transition: transform 0.15s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease);
+      box-shadow: 0 8px 18px rgba(21,17,14,0.18);
     }
-    .pill.teal { background: #d7efeb; color: var(--teal); }
-    .muted { color: var(--muted); font-size: 0.92rem; }
-    .pitch-list { display: grid; gap: 0.75rem; }
-    .pitch {
-      border: 1px solid var(--line);
+    .btn:hover { transform: translateY(-1px); background: #2a221c; }
+    .btn:active { transform: translateY(1px) scale(0.98); }
+    .btn.amber {
+      background: linear-gradient(135deg, var(--amber), var(--amber-deep));
+      color: var(--ink);
+      box-shadow: 0 8px 20px rgba(196, 126, 8, 0.35);
+    }
+    .btn.amber:hover { filter: brightness(1.05); }
+    .btn.ghost {
+      background: transparent; color: var(--ink);
+      border: 1.5px solid var(--line); box-shadow: none;
+    }
+    .btn.ghost:hover { background: #fff; }
+    .btn.teal { background: var(--teal); box-shadow: 0 8px 18px rgba(13,122,116,0.28); }
+    .btn.sm { padding: 0.4rem 0.75rem; font-size: 0.88rem; box-shadow: none; }
+
+    .toolbar {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem;
+    }
+    .toolbar h2 { margin: 0; }
+
+    .doors { display: grid; gap: 0.65rem; }
+    .door {
+      display: flex; gap: 0.7rem; align-items: flex-start;
+      padding: 0.75rem;
       border-radius: 14px;
+      background: linear-gradient(135deg, #fff8ea, #f3fffc);
+      border: 1px solid var(--line);
+    }
+    .door .n {
+      flex: 0 0 1.7rem; height: 1.7rem;
+      display: grid; place-items: center;
+      border-radius: 999px; font-weight: 800; font-size: 0.85rem;
+      background: var(--ink); color: var(--paper);
+    }
+    .door.alt .n { background: var(--teal); }
+
+    .score-card {
+      margin-top: 1rem;
+      padding: 0.9rem;
+      border-radius: 16px;
+      background: #15110e;
+      color: #fff8ea;
+      display: none;
+    }
+    .score-card.show { display: block; animation: pop 0.45s var(--ease); }
+    .score-card .big {
+      font-size: 2.4rem; font-weight: 800; letter-spacing: -0.04em;
+      color: var(--amber);
+    }
+    .bars { display: grid; gap: 0.45rem; margin-top: 0.7rem; }
+    .bar-row { display: grid; grid-template-columns: 4.5rem 1fr 2.2rem; gap: 0.45rem; align-items: center; font-size: 0.82rem; }
+    .bar {
+      height: 0.45rem; border-radius: 999px; background: rgba(255,255,255,0.12); overflow: hidden;
+    }
+    .bar > i {
+      display: block; height: 100%; width: 0;
+      background: linear-gradient(90deg, var(--teal), var(--amber));
+      border-radius: inherit;
+      transition: width 0.8s var(--ease);
+    }
+
+    .list { display: grid; gap: 0.7rem; }
+    .pitch {
+      border: 1.5px solid var(--line);
+      border-radius: 16px;
       padding: 0.9rem 1rem;
       background: #fff;
+      transition: transform 0.2s var(--ease), border-color 0.2s var(--ease);
+      animation: rise 0.35s var(--ease) both;
     }
-    .pitch-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 0.75rem;
-      align-items: start;
-    }
+    .pitch:hover { transform: translateY(-2px); border-color: #d2c4a8; }
+    .pitch-head { display: flex; justify-content: space-between; gap: 0.75rem; align-items: start; }
     .score {
-      font-weight: 800;
-      font-size: 1.25rem;
-      color: var(--amber-deep);
-      white-space: nowrap;
+      font-weight: 800; font-size: 1.35rem; color: var(--amber-deep);
+      min-width: 3rem; text-align: right;
     }
-    .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.7rem; }
-    .actions button {
-      border: 1px solid var(--line);
-      background: var(--paper);
-      border-radius: 999px;
-      padding: 0.35rem 0.7rem;
-      cursor: pointer;
-      font-weight: 600;
+    .meta { color: var(--muted); font-size: 0.88rem; margin-top: 0.25rem; }
+    .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      border-radius: 999px; padding: 0.15rem 0.5rem;
+      background: #f4e6c4; font-size: 0.75rem; font-weight: 750;
     }
-    .actions button.primary {
-      background: var(--teal);
-      border-color: var(--teal);
-      color: white;
+    .pill.teal { background: var(--teal-soft); color: var(--teal); }
+    .pill.live { background: #ffe082; animation: pulse 1.6s ease infinite; }
+
+    .empty {
+      text-align: center; padding: 2rem 1rem;
+      border: 1.5px dashed var(--line); border-radius: 16px;
+      color: var(--muted); background: rgba(255,255,255,0.45);
     }
-    .status {
-      min-height: 1.25rem;
-      margin-top: 0.6rem;
-      font-size: 0.9rem;
-      color: var(--teal);
-    }
-    .status.err { color: var(--danger); }
+    .empty strong { display: block; color: var(--ink); margin-bottom: 0.25rem; }
+
     footer {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 1.25rem 2rem;
-      color: var(--muted);
-      font-size: 0.85rem;
+      max-width: 1080px; margin: 0 auto;
+      padding: 0 1.1rem 2rem; color: var(--muted); font-size: 0.85rem;
     }
-    .hidden { display: none !important; }
+
+    .toast-wrap {
+      position: fixed; right: 1rem; bottom: 1rem; z-index: 50;
+      display: grid; gap: 0.5rem; width: min(360px, calc(100vw - 2rem));
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      background: var(--ink); color: #fff8ea;
+      padding: 0.85rem 1rem; border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+      animation: toast-in 0.35s var(--ease);
+      display: flex; gap: 0.6rem; align-items: start;
+    }
+    .toast.ok { background: var(--ok); }
+    .toast.err { background: var(--danger); }
+    .toast button {
+      margin-left: auto; border: 0; background: transparent;
+      color: inherit; opacity: 0.8; font-size: 1.1rem; line-height: 1;
+    }
+
+    .burst {
+      position: fixed; inset: 0; pointer-events: none; z-index: 40;
+      overflow: hidden;
+    }
+    .burst i {
+      position: absolute; top: -10px;
+      width: 8px; height: 8px; border-radius: 2px;
+      animation: fall 1.1s linear forwards;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pop {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes fall {
+      to { transform: translateY(105vh) rotate(420deg); opacity: 0; }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important; transition: none !important;
+      }
+      html { scroll-behavior: auto; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <h1>AI <span>Tank</span></h1>
-      <p>Pitch AI ideas. Investors can take interest and request permission immediately — contests are multi-board charts, not one show floor.</p>
-    </div>
-    <nav>
-      <button type="button" class="active" data-tab="pitch">Pitch</button>
-      <button type="button" data-tab="browse">Browse / Interest</button>
-      <button type="button" data-tab="boards">Boards</button>
-      <button type="button" class="ghost" data-tab="perms">Permissions</button>
-    </nav>
-  </header>
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <h1>AI <em>Tank</em></h1>
+        <p>Drop an AI idea. Get scored. Attract interest fast — contests are side boards, not the only door.</p>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="Main">
+        <button type="button" class="active" data-tab="pitch" role="tab" aria-selected="true">Pitch</button>
+        <button type="button" data-tab="browse" role="tab" aria-selected="false">Browse</button>
+        <button type="button" data-tab="boards" role="tab" aria-selected="false">Boards</button>
+        <button type="button" data-tab="perms" role="tab" aria-selected="false">Inbox</button>
+      </nav>
+    </header>
 
-  <main>
-    <section id="tab-pitch" class="hero-grid">
-      <div class="card">
-        <h2>Submit a pitch</h2>
-        <p class="muted">Scored by the Builder / Market / Impact pack (Grok when configured, heuristic otherwise). Starlink / orbital / edge ideas get a Nova bonus.</p>
-        <form id="pitchForm">
-          <label for="handle">Your handle</label>
-          <input id="handle" value="pojo" required />
-          <label for="title">Title</label>
-          <input id="title" placeholder="Orbital clinic triage" required />
-          <label for="problem">Problem</label>
-          <textarea id="problem" required placeholder="Who hurts and why?"></textarea>
-          <label for="solution">AI solution</label>
-          <textarea id="solution" required placeholder="What does the model / system do?"></textarea>
-          <label for="why">Why now</label>
-          <textarea id="why" placeholder="Timing, wedge, proof"></textarea>
-          <label class="check"><input type="checkbox" id="starlink" /> Uses Starlink / orbital / edge connectivity</label>
-          <label class="check"><input type="checkbox" id="enroll" checked /> Enroll in Round 1 board</label>
-          <div class="row" style="margin-top:0.8rem">
-            <button class="btn" type="submit">Pitch it</button>
-            <span class="muted">Investors can interest you without waiting on a contest.</span>
+    <main>
+      <section id="panel-pitch" class="panel active" role="tabpanel">
+        <div class="hero">
+          <div class="card">
+            <h2>Pitch your idea</h2>
+            <p class="lede">Three judges score it instantly. Starlink / edge ideas get a Nova bonus.</p>
+            <form id="pitchForm">
+              <label for="handle">Your handle</label>
+              <input id="handle" value="pojo" maxlength="40" required autocomplete="username" />
+
+              <label for="title">Title</label>
+              <div class="field">
+                <input id="title" placeholder="Orbital clinic triage" maxlength="80" required />
+                <span class="hint" data-count="title">0/80</span>
+              </div>
+
+              <label for="problem">Problem</label>
+              <div class="field">
+                <textarea id="problem" placeholder="Who hurts, and why?" maxlength="600" required></textarea>
+                <span class="hint" data-count="problem">0/600</span>
+              </div>
+
+              <label for="solution">AI solution</label>
+              <div class="field">
+                <textarea id="solution" placeholder="What does the system actually do?" maxlength="600" required></textarea>
+                <span class="hint" data-count="solution">0/600</span>
+              </div>
+
+              <label for="why">Why now <span style="font-weight:500;color:var(--muted)">(optional)</span></label>
+              <textarea id="why" placeholder="Timing, wedge, proof" maxlength="400"></textarea>
+
+              <div class="checks">
+                <label class="check"><input type="checkbox" id="starlink" /> Uses Starlink / orbital / edge connectivity</label>
+                <label class="check"><input type="checkbox" id="enroll" checked /> Enter Round 1 board</label>
+              </div>
+
+              <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin-top:0.85rem">
+                <button class="btn amber" id="pitchBtn" type="submit">Pitch it 🚀</button>
+                <span class="meta">Takes a few seconds · no account wall</span>
+              </div>
+            </form>
           </div>
-          <div class="status" id="pitchStatus"></div>
-        </form>
-      </div>
-      <div class="card">
-        <h2>How this stage works</h2>
-        <p class="muted" style="margin-bottom:0.75rem">Not a trading desk. This is a pitch floor with three doors:</p>
-        <p><span class="pill">1</span> <strong>Investor lane</strong> — Interest now, permission requests for contact / data / evaluate.</p>
-        <p style="margin-top:0.55rem"><span class="pill teal">2</span> <strong>Boards</strong> — Speedrun-style charts (judge panel, votes, popularity).</p>
-        <p style="margin-top:0.55rem"><span class="pill">3</span> <strong>Recycle bots</strong> — rejected ideas can get credit / offers, never silent republish.</p>
-        <div id="lastScore" class="muted" style="margin-top:1rem"></div>
-      </div>
-    </section>
 
-    <section id="tab-browse" class="card hidden">
-      <div class="row" style="justify-content:space-between;margin-bottom:0.75rem">
-        <h2>Open pitches</h2>
-        <button type="button" class="btn ghost" id="refreshPitches">Refresh</button>
-      </div>
-      <label for="investorHandle">Investor handle</label>
-      <input id="investorHandle" value="investor_demo" style="max-width:240px;margin-bottom:0.75rem" />
-      <div id="pitchList" class="pitch-list"></div>
-    </section>
+          <div class="card">
+            <h2>How it works</h2>
+            <p class="lede">Simple on purpose.</p>
+            <div class="doors">
+              <div class="door"><div class="n">1</div><div><strong>Investor lane</strong><div class="meta">Interest + permission requests — no waiting on a contest.</div></div></div>
+              <div class="door alt"><div class="n">2</div><div><strong>Boards</strong><div class="meta">Speedrun-style charts: judges, votes, popularity.</div></div></div>
+              <div class="door"><div class="n">3</div><div><strong>Recycle bots</strong><div class="meta">Rejected ideas can get credit or offers — never silent republish.</div></div></div>
+            </div>
+            <div id="scoreCard" class="score-card" aria-live="polite">
+              <div class="meta" style="color:#d9c9a8">Nova score</div>
+              <div class="big" id="novaBig">0</div>
+              <div class="bars">
+                <div class="bar-row"><span>Builder</span><div class="bar"><i id="barBuilder"></i></div><span id="valBuilder">0</span></div>
+                <div class="bar-row"><span>Market</span><div class="bar"><i id="barMarket"></i></div><span id="valMarket">0</span></div>
+                <div class="bar-row"><span>Impact</span><div class="bar"><i id="barImpact"></i></div><span id="valImpact">0</span></div>
+              </div>
+              <div class="meta" id="scoreMode" style="margin-top:0.65rem;color:#d9c9a8"></div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <section id="tab-boards" class="card hidden">
-      <h2>Contest boards</h2>
-      <p class="muted" style="margin-bottom:0.75rem">Multiple scoreboards can run at once. Round 1 is one board, not the whole platform.</p>
-      <div id="boardMeta"></div>
-      <div id="boardList" class="pitch-list" style="margin-top:0.75rem"></div>
-    </section>
+      <section id="panel-browse" class="panel" role="tabpanel">
+        <div class="card">
+          <div class="toolbar">
+            <h2>Open pitches</h2>
+            <button type="button" class="btn ghost sm" id="refreshPitches">Refresh</button>
+          </div>
+          <label for="investorHandle">Acting as investor</label>
+          <input id="investorHandle" value="investor_demo" maxlength="40" style="max-width:260px;margin-bottom:0.85rem" />
+          <div id="pitchList" class="list"></div>
+        </div>
+      </section>
 
-    <section id="tab-perms" class="card hidden">
-      <div class="row" style="justify-content:space-between;margin-bottom:0.75rem">
-        <h2>Permission inbox</h2>
-        <button type="button" class="btn ghost" id="refreshPerms">Refresh</button>
-      </div>
-      <label for="originatorHandle">Originator handle</label>
-      <input id="originatorHandle" value="pojo" style="max-width:240px;margin-bottom:0.75rem" />
-      <div id="permList" class="pitch-list"></div>
-    </section>
-  </main>
+      <section id="panel-boards" class="panel" role="tabpanel">
+        <div class="card">
+          <div class="toolbar">
+            <h2>Contest boards</h2>
+            <span class="pill live">Round 1 live</span>
+          </div>
+          <p class="lede">Many boards can run at once — like speedrun charts, not one TV episode.</p>
+          <div id="boardMeta" class="list"></div>
+          <h3 style="margin:1rem 0 0.55rem;font-size:1rem">Round 1 leaderboard</h3>
+          <div id="boardList" class="list"></div>
+        </div>
+      </section>
 
-  <footer>AI Tank — separate product from any trading stack. Local scaffold; set XAI_API_KEY for live Grok judging.</footer>
+      <section id="panel-perms" class="panel" role="tabpanel">
+        <div class="card">
+          <div class="toolbar">
+            <h2>Permission inbox</h2>
+            <button type="button" class="btn ghost sm" id="refreshPerms">Refresh</button>
+          </div>
+          <label for="originatorHandle">Your originator handle</label>
+          <input id="originatorHandle" value="pojo" maxlength="40" style="max-width:260px;margin-bottom:0.85rem" />
+          <div id="permList" class="list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>AI Tank — pitch platform, not a trading desk. Local demo · set <code>XAI_API_KEY</code> for live Grok judging.</footer>
+  <div class="toast-wrap" id="toasts" aria-live="polite"></div>
 
   <script>
     const $ = (id) => document.getElementById(id);
-    const tabs = document.querySelectorAll('nav button[data-tab]');
+    const tabs = document.querySelectorAll('.tabs button');
+
+    function toast(message, type = 'ok') {
+      const el = document.createElement('div');
+      el.className = 'toast ' + type;
+      el.innerHTML = `<span>${escapeHtml(message)}</span><button type="button" aria-label="Dismiss">×</button>`;
+      el.querySelector('button').onclick = () => el.remove();
+      $('toasts').appendChild(el);
+      setTimeout(() => el.remove(), 4200);
+    }
+
+    function celebrate() {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const layer = document.createElement('div');
+      layer.className = 'burst';
+      const colors = ['#f0a820', '#0d7a74', '#ff6b4a', '#ffe082', '#7c5cff'];
+      for (let i = 0; i < 28; i++) {
+        const bit = document.createElement('i');
+        bit.style.left = Math.random() * 100 + '%';
+        bit.style.background = colors[i % colors.length];
+        bit.style.animationDelay = (Math.random() * 0.25) + 's';
+        bit.style.transform = `rotate(${Math.random() * 180}deg)`;
+        layer.appendChild(bit);
+      }
+      document.body.appendChild(layer);
+      setTimeout(() => layer.remove(), 1300);
+    }
 
     function showTab(name) {
-      ['pitch','browse','boards','perms'].forEach((t) => {
-        $('tab-' + t).classList.toggle('hidden', t !== name);
+      ['pitch', 'browse', 'boards', 'perms'].forEach((t) => {
+        $('panel-' + t).classList.toggle('active', t === name);
       });
-      tabs.forEach((b) => b.classList.toggle('active', b.dataset.tab === name));
+      tabs.forEach((b) => {
+        const on = b.dataset.tab === name;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
       if (name === 'browse') loadPitches();
       if (name === 'boards') loadBoards();
       if (name === 'perms') loadPerms();
     }
     tabs.forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
+
+    function bindCounters() {
+      [['title', 80], ['problem', 600], ['solution', 600]].forEach(([id, max]) => {
+        const input = $(id);
+        const hint = document.querySelector(`[data-count="${id}"]`);
+        const sync = () => { hint.textContent = `${input.value.length}/${max}`; };
+        input.addEventListener('input', sync);
+        sync();
+      });
+    }
+    bindCounters();
 
     async function api(path, opts) {
       const res = await fetch(path, {
@@ -267,54 +509,72 @@
       return data;
     }
 
+    function animateScore(result) {
+      const score = result.score || {};
+      const nova = Number(result.nova_score || score.final_score || 0);
+      const builder = Number(score.builder || 0);
+      const market = Number(score.market || 0);
+      const impact = Number(score.impact || 0);
+      $('scoreCard').classList.add('show');
+      countUp($('novaBig'), nova);
+      $('valBuilder').textContent = builder;
+      $('valMarket').textContent = market;
+      $('valImpact').textContent = impact;
+      requestAnimationFrame(() => {
+        $('barBuilder').style.width = Math.min(builder, 100) + '%';
+        $('barMarket').style.width = Math.min(market, 100) + '%';
+        $('barImpact').style.width = Math.min(impact, 100) + '%';
+      });
+      $('scoreMode').textContent = score.mode === 'grok'
+        ? 'Live Grok panel · Starlink bonus ' + (score.starlink_bonus_applied ? 'on' : 'off')
+        : 'Heuristic panel · set XAI_API_KEY for live Grok';
+    }
+
+    function countUp(el, target) {
+      const start = performance.now();
+      const from = 0;
+      const dur = 700;
+      function frame(t) {
+        const p = Math.min(1, (t - start) / dur);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = (from + (target - from) * eased).toFixed(1);
+        if (p < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
     $('pitchForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const status = $('pitchStatus');
-      status.className = 'status';
-      status.textContent = 'Scoring…';
+      const btn = $('pitchBtn');
+      btn.disabled = true;
+      btn.textContent = 'Scoring…';
       try {
         const pitch = await api('/api/pitches', {
           method: 'POST',
           body: JSON.stringify({
-            handle: $('handle').value,
-            title: $('title').value,
-            problem: $('problem').value,
-            solution: $('solution').value,
-            why_now: $('why').value,
+            handle: $('handle').value.trim(),
+            title: $('title').value.trim(),
+            problem: $('problem').value.trim(),
+            solution: $('solution').value.trim(),
+            why_now: $('why').value.trim(),
             starlink_flag: $('starlink').checked,
             enroll_round1: $('enroll').checked,
           }),
         });
-        status.textContent = `Landed. Nova ${pitch.nova_score} · id ${pitch.id}`;
-        const s = pitch.score || {};
-        $('lastScore').innerHTML = `<strong>Last score</strong> (${s.mode || 'n/a'}): Builder ${s.builder ?? '—'} · Market ${s.market ?? '—'} · Impact ${s.impact ?? '—'} → final <strong>${pitch.nova_score}</strong>`;
+        animateScore(pitch);
+        celebrate();
+        toast(`Landed! Nova ${pitch.nova_score} — you're on the board.`, 'ok');
         e.target.reset();
         $('handle').value = 'pojo';
         $('enroll').checked = true;
+        bindCounters();
       } catch (err) {
-        status.className = 'status err';
-        status.textContent = err.message;
+        toast(err.message, 'err');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Pitch it 🚀';
       }
     });
-
-    function pitchCard(p) {
-      const star = p.starlink_flag ? '<span class="pill teal">Starlink</span>' : '';
-      return `<article class="pitch" data-id="${p.id}">
-        <div class="pitch-head">
-          <div>
-            <strong>${escapeHtml(p.title)}</strong> ${star}
-            <div class="muted">${escapeHtml(p.problem).slice(0, 140)}</div>
-          </div>
-          <div class="score">${p.nova_score ?? '—'}</div>
-        </div>
-        <div class="muted">Interest: ${p.interest_count || 0}</div>
-        <div class="actions">
-          <button type="button" class="primary" data-act="interest">Interest</button>
-          <button type="button" data-act="perm">Request contact</button>
-          <button type="button" data-act="recycle">Recycle offer</button>
-        </div>
-      </article>`;
-    }
 
     function escapeHtml(s) {
       return String(s || '').replace(/[&<>"']/g, (c) => ({
@@ -322,13 +582,32 @@
       })[c]);
     }
 
+    function pitchCard(p, i) {
+      const star = p.starlink_flag ? '<span class="pill teal">Starlink</span>' : '';
+      return `<article class="pitch" data-id="${p.id}" style="animation-delay:${i * 40}ms">
+        <div class="pitch-head">
+          <div>
+            <strong>${escapeHtml(p.title)}</strong> ${star}
+            <div class="meta">${escapeHtml(p.problem).slice(0, 140)}</div>
+          </div>
+          <div class="score">${p.nova_score ?? '—'}</div>
+        </div>
+        <div class="meta">♥ ${p.interest_count || 0} interest</div>
+        <div class="actions">
+          <button type="button" class="btn teal sm" data-act="interest">Interest</button>
+          <button type="button" class="btn ghost sm" data-act="perm">Ask permission</button>
+          <button type="button" class="btn ghost sm" data-act="recycle">Recycle offer</button>
+        </div>
+      </article>`;
+    }
+
     async function loadPitches() {
       const list = $('pitchList');
-      list.innerHTML = '<p class="muted">Loading…</p>';
+      list.innerHTML = '<p class="meta">Loading pitches…</p>';
       try {
         const pitches = await api('/api/pitches');
         if (!pitches.length) {
-          list.innerHTML = '<p class="muted">No pitches yet — submit one on the Pitch tab.</p>';
+          list.innerHTML = '<div class="empty"><strong>No pitches yet</strong>Be the first — hop back to Pitch and drop one.</div>';
           return;
         }
         list.innerHTML = pitches.map(pitchCard).join('');
@@ -337,31 +616,35 @@
             const btn = ev.target.closest('button[data-act]');
             if (!btn) return;
             const id = el.dataset.id;
-            const handle = $('investorHandle').value || 'investor_demo';
+            const handle = $('investorHandle').value.trim() || 'investor_demo';
+            btn.disabled = true;
             try {
               if (btn.dataset.act === 'interest') {
                 await api(`/api/pitches/${id}/interest`, { method: 'POST', body: JSON.stringify({ handle }) });
+                toast('Interest locked in.', 'ok');
                 loadPitches();
               } else if (btn.dataset.act === 'perm') {
                 await api(`/api/pitches/${id}/permissions`, {
                   method: 'POST',
                   body: JSON.stringify({ handle, scope: 'contact', message: 'Want to learn more.' }),
                 });
-                alert('Permission request sent — originator can approve on the Permissions tab.');
+                toast('Permission request sent — check Inbox as the originator.', 'ok');
               } else if (btn.dataset.act === 'recycle') {
                 await api(`/api/pitches/${id}/recycle-offer`, {
                   method: 'POST',
                   body: JSON.stringify({ offer_type: 'credit' }),
                 });
-                alert('Recycle offer opened for originator credit / terms.');
+                toast('Recycle offer opened for credit / terms.', 'ok');
               }
             } catch (err) {
-              alert(err.message);
+              toast(err.message, 'err');
+            } finally {
+              btn.disabled = false;
             }
           });
         });
       } catch (err) {
-        list.innerHTML = `<p class="status err">${escapeHtml(err.message)}</p>`;
+        list.innerHTML = `<div class="empty"><strong>Couldn’t load</strong>${escapeHtml(err.message)}</div>`;
       }
     }
 
@@ -370,56 +653,73 @@
       const list = $('boardList');
       try {
         const boards = await api('/api/boards');
-        meta.innerHTML = boards.map((b) =>
-          `<div class="pitch"><strong>${escapeHtml(b.title)}</strong>
-           <div class="muted">${escapeHtml(b.theme)}</div>
-           <div class="pill">${(b.score_types || []).join(' · ')}</div></div>`
-        ).join('') || '<p class="muted">No boards</p>';
+        meta.innerHTML = boards.length
+          ? boards.map((b, i) => `<div class="pitch" style="animation-delay:${i * 40}ms">
+              <strong>${escapeHtml(b.title)}</strong>
+              <div class="meta">${escapeHtml(b.theme)}</div>
+              <div style="margin-top:0.4rem"><span class="pill">${(b.score_types || []).join(' · ') || 'judge · vote · popularity'}</span></div>
+            </div>`).join('')
+          : '<div class="empty"><strong>No boards yet</strong></div>';
+
         const lb = await api('/api/boards/round-1-starlink/leaderboard');
         const entries = lb.entries || [];
-        list.innerHTML = '<h3 style="margin:0.5rem 0">Round 1 leaderboard</h3>' +
-          (entries.length ? entries.map((e, i) =>
-            `<div class="pitch"><div class="pitch-head"><div>#${i + 1} ${escapeHtml(e.title)} ${e.starlink_flag ? '<span class="pill teal">Starlink</span>' : ''}</div><div class="score">${e.board_score ?? e.nova_score}</div></div><div class="muted">Interest ${e.interest_count || 0}</div></div>`
-          ).join('') : '<p class="muted">No enrollments yet.</p>');
+        list.innerHTML = entries.length
+          ? entries.map((e, i) => `<div class="pitch" style="animation-delay:${i * 40}ms">
+              <div class="pitch-head">
+                <div><strong>#${i + 1} ${escapeHtml(e.title)}</strong> ${e.starlink_flag ? '<span class="pill teal">Starlink</span>' : ''}</div>
+                <div class="score">${e.board_score ?? e.nova_score}</div>
+              </div>
+              <div class="meta">♥ ${e.interest_count || 0} interest</div>
+            </div>`).join('')
+          : '<div class="empty"><strong>Leaderboard is empty</strong>Pitch something and enroll in Round 1.</div>';
       } catch (err) {
-        meta.innerHTML = `<p class="status err">${escapeHtml(err.message)}</p>`;
+        meta.innerHTML = `<div class="empty"><strong>Boards unavailable</strong>${escapeHtml(err.message)}</div>`;
         list.innerHTML = '';
       }
     }
 
     async function loadPerms() {
       const box = $('permList');
-      box.innerHTML = '<p class="muted">Loading…</p>';
+      box.innerHTML = '<p class="meta">Loading inbox…</p>';
       try {
-        const originator = $('originatorHandle').value || 'pojo';
+        const originator = $('originatorHandle').value.trim() || 'pojo';
         const rows = await api('/api/permissions?originator=' + encodeURIComponent(originator));
         if (!rows.length) {
-          box.innerHTML = '<p class="muted">No permission requests yet.</p>';
+          box.innerHTML = '<div class="empty"><strong>Inbox zero</strong>When investors ask for contact, it shows up here.</div>';
           return;
         }
-        box.innerHTML = rows.map((r) => `
-          <div class="pitch">
+        box.innerHTML = rows.map((r, i) => `
+          <div class="pitch" style="animation-delay:${i * 40}ms">
             <div class="pitch-head">
-              <div><strong>${escapeHtml(r.scope)}</strong> · ${escapeHtml(r.status)}
-                <div class="muted">pitch ${escapeHtml(r.pitch_id)} · ${escapeHtml(r.message || '')}</div>
+              <div>
+                <strong>${escapeHtml(r.scope)}</strong>
+                <span class="pill">${escapeHtml(r.status)}</span>
+                <div class="meta">pitch ${escapeHtml(r.pitch_id)} · ${escapeHtml(r.message || 'No message')}</div>
               </div>
             </div>
             ${r.status === 'pending' ? `<div class="actions">
-              <button type="button" class="primary" data-id="${r.id}" data-status="approved">Approve</button>
-              <button type="button" data-id="${r.id}" data-status="denied">Deny</button>
+              <button type="button" class="btn teal sm" data-id="${r.id}" data-status="approved">Approve</button>
+              <button type="button" class="btn ghost sm" data-id="${r.id}" data-status="denied">Deny</button>
             </div>` : ''}
           </div>`).join('');
         box.querySelectorAll('button[data-id]').forEach((btn) => {
           btn.addEventListener('click', async () => {
-            await api(`/api/permissions/${btn.dataset.id}/decide`, {
-              method: 'POST',
-              body: JSON.stringify({ status: btn.dataset.status }),
-            });
-            loadPerms();
+            btn.disabled = true;
+            try {
+              await api(`/api/permissions/${btn.dataset.id}/decide`, {
+                method: 'POST',
+                body: JSON.stringify({ status: btn.dataset.status }),
+              });
+              toast(btn.dataset.status === 'approved' ? 'Approved.' : 'Denied.', 'ok');
+              loadPerms();
+            } catch (err) {
+              toast(err.message, 'err');
+              btn.disabled = false;
+            }
           });
         });
       } catch (err) {
-        box.innerHTML = `<p class="status err">${escapeHtml(err.message)}</p>`;
+        box.innerHTML = `<div class="empty"><strong>Inbox error</strong>${escapeHtml(err.message)}</div>`;
       }
     }
 
