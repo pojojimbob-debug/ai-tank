@@ -18,7 +18,6 @@ class StoredPitch:
     pitch: Pitch
     nova_score: float
     judges: list = field(default_factory=list)
-    starlink_bonus_applied: bool = False
     judged: bool = False
 
 
@@ -34,7 +33,6 @@ class PitchStore:
             pitch=pitch,
             nova_score=result["nova_score"],
             judges=result["judges"],
-            starlink_bonus_applied=result["starlink_bonus_applied"],
             judged=True,
         )
         self._pitches[pid] = stored
@@ -51,7 +49,7 @@ store = PitchStore()
 
 
 if __name__ == "__main__":
-    store.submit(Pitch("Edge DB Sync", "Offline AI needs data", "Mesh DB over Starlink", uses_starlink=True))
-    store.submit(Pitch("Voice Farm", "Farmers can't type", "Voice AI for crop logs", uses_starlink=False))
+    store.submit(Pitch("Edge Sync", "Offline tools lose state", "Local-first log that syncs later"))
+    store.submit(Pitch("Voice Farm", "Farmers can't type", "Voice AI for crop logs"))
     for p in store.leaderboard():
         print(p.id, p.nova_score, p.pitch.title)

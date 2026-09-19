@@ -1,7 +1,7 @@
 """AI Tank — Judge Engine (scaffold)
 
 Simulates the three AI judges scoring a pitch.
-Replace the score_pitch() body with a real Grok / LLM call later.
+Replace the score_pitch() body with a real LLM call later.
 """
 
 import random
@@ -14,7 +14,6 @@ class Pitch:
     problem: str
     solution: str
     why: str = ""
-    uses_starlink: bool = False
 
 
 @dataclass
@@ -35,11 +34,9 @@ JUDGES = {
     },
     "impact": {
         "name": "The Impact Judge",
-        "focus": "Jobs, underserved areas, sparks American AI creativity.",
+        "focus": "Jobs, underserved users, does this actually help people build?",
     },
 }
-
-STARLINK_BONUS = 1.15  # 15% multiplier for connectivity-focused pitches
 
 
 def score_pitch(pitch: Pitch) -> dict:
@@ -53,24 +50,20 @@ def score_pitch(pitch: Pitch) -> dict:
         scores.append(JudgeScore(judge=meta["name"], score=base, rationale=f"{meta['focus']} (simulated)"))
 
     nova = sum(s.score for s in scores) / len(scores)
-    if pitch.uses_starlink:
-        nova *= STARLINK_BONUS
 
     return {
         "pitch": asdict(pitch),
         "nova_score": round(nova, 1),
         "judges": [asdict(s) for s in scores],
-        "starlink_bonus_applied": pitch.uses_starlink,
     }
 
 
 if __name__ == "__main__":
     sample = Pitch(
-        title="Orbital Farm AI",
-        problem="Rural farms lack real-time crop data.",
-        solution="AI models on satellite imagery, delivered over Starlink.",
-        why="Starlink just reached these areas.",
-        uses_starlink=True,
+        title="Farm Log Voice",
+        problem="Field notes get lost when hands are dirty.",
+        solution="Voice-to-structured crop logs on a phone.",
+        why="Cheap phones are everywhere; typing in a field is not.",
     )
     import json
     print(json.dumps(score_pitch(sample), indent=2))

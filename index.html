@@ -50,15 +50,6 @@
       color: var(--text);
       font-size: 1rem;
     }
-    .check-row {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      margin: 0 0 1rem;
-      font-weight: 500;
-      color: var(--muted);
-    }
-    .check-row input { width: auto; margin: 0; }
     button {
       background: var(--accent);
       color: #000;
@@ -97,16 +88,6 @@
       margin-bottom: 1rem;
     }
     .score { color: var(--accent); font-weight: 700; }
-    .badge {
-      display: inline-block;
-      margin-left: 0.4rem;
-      font-size: 0.75rem;
-      color: #000;
-      background: var(--accent);
-      border-radius: 999px;
-      padding: 0.05rem 0.5rem;
-      font-weight: 700;
-    }
     footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.9rem; }
   </style>
 </head>
@@ -120,17 +101,13 @@
       <h2>Submit Your Pitch</h2>
       <form id="pitchForm">
         <label for="title">Idea Title</label>
-        <input type="text" id="title" placeholder="e.g. Starlink-powered crop AI for rural farms" required>
+        <input type="text" id="title" placeholder="e.g. Crop AI for rural farms" required>
         <label for="problem">The Problem</label>
         <textarea id="problem" rows="3" placeholder="What are you solving?" required></textarea>
         <label for="solution">Your AI Solution</label>
         <textarea id="solution" rows="3" placeholder="How does AI fix it?" required></textarea>
         <label for="why">Why Now / Why You</label>
         <textarea id="why" rows="2" placeholder="Why this matters now"></textarea>
-        <label class="check-row" for="uses_starlink">
-          <input type="checkbox" id="uses_starlink">
-          Uses Starlink, satellite, or remote/edge connectivity (15% Nova bonus)
-        </label>
         <button type="submit" id="submitBtn">Pitch It</button>
         <p class="status" id="status"></p>
       </form>
@@ -146,7 +123,7 @@
     </section>
   </main>
   <footer>
-    AI Tank — Round 1 prize is a feature on this board. Simulated judges until LLM wiring.
+    AI Tank — Independent contest. Not affiliated with any satellite or hardware brand.
   </footer>
   <script>
     const form = document.getElementById('pitchForm');
@@ -166,11 +143,10 @@
         return;
       }
       pitchesEl.innerHTML = rows.map(function (p) {
-        const badge = p.starlink ? '<span class="badge">STARLINK</span>' : '';
         const blurb = (p.problem || p.solution || '').slice(0, 140);
         return '<div class="pitch-card"><strong>' +
           escapeHtml(p.title) + '</strong> — <span class="score">' +
-          p.nova_score + '</span>' + badge +
+          p.nova_score + '</span>' +
           '<br><small>' + escapeHtml(blurb) + '</small></div>';
       }).join('');
     }
@@ -196,8 +172,7 @@
         title: document.getElementById('title').value.trim(),
         problem: document.getElementById('problem').value.trim(),
         solution: document.getElementById('solution').value.trim(),
-        why: document.getElementById('why').value.trim(),
-        uses_starlink: document.getElementById('uses_starlink').checked
+        why: document.getElementById('why').value.trim()
       };
       try {
         const res = await fetch('/api/pitch', {
@@ -208,8 +183,7 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || ('pitch ' + res.status));
         document.getElementById('verdictTitle').textContent = payload.title;
-        document.getElementById('verdictScore').textContent = data.nova_score +
-          (data.starlink_bonus_applied ? ' (Starlink bonus)' : '');
+        document.getElementById('verdictScore').textContent = data.nova_score;
         document.getElementById('verdictJudges').innerHTML = (data.judges || []).map(function (j) {
           return '<div class="judge-row"><strong>' + escapeHtml(j.judge) +
             '</strong> — ' + j.score + '<br>' + escapeHtml(j.rationale) + '</div>';

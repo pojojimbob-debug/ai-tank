@@ -1,18 +1,16 @@
 # AI Tank Contest — Round 1
 
 ## Theme
-AI ideas that use Starlink, orbital data, or edge compute to reach people who never had the tools.
+Any AI idea that can be explained in a short pitch: problem, solution, why now.
 
-## How to Enter
-1. Go to the site (or run locally).
-2. Submit: title, problem, solution, why now.
-3. Check the Starlink box if your idea uses satellite connectivity.
-4. AI judges score it. Nova Score appears on the leaderboard.
+## How to enter
+1. Run the site locally or open the deployed page.
+2. Submit title, problem, solution, why now.
+3. AI judges score it. Nova Score appears on the leaderboard.
 
-## Prizes (proposed)
+## Prizes (round 1)
 - Top 10%: featured on the site
-- Top 1%: backed or built with real compute / Starlink access
-- Community vote bonus for the most creative pitch
+- Nothing that implies backing, hardware, or connectivity from a company we do not have a deal with
 
-## Why This Round
-Contest = marketing. Every pitch is a reason for someone new to try AI.
+## Rule
+Do not affiliate the contest with a brand we have not signed.

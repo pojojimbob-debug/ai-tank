@@ -31,7 +31,6 @@ def api_pitch():
         problem=problem,
         solution=solution,
         why=(data.get("why") or "").strip(),
-        uses_starlink=bool(data.get("uses_starlink", False)),
     )
     stored = store.submit(pitch)
     return jsonify(
@@ -39,7 +38,6 @@ def api_pitch():
             "id": stored.id,
             "nova_score": stored.nova_score,
             "judges": stored.judges,
-            "starlink_bonus_applied": stored.starlink_bonus_applied,
         }
     )
 
@@ -54,7 +52,6 @@ def api_leaderboard():
                 "problem": p.pitch.problem,
                 "solution": p.pitch.solution,
                 "nova_score": p.nova_score,
-                "starlink": p.pitch.uses_starlink,
                 "judges": p.judges,
             }
             for p in store.leaderboard()

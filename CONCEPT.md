@@ -1,37 +1,26 @@
 # AI Tank Concept
 
-## The Angle
-Shark Tank, but for AI. Website, not TV. AI judges instead of human panel.
+Shark Tank, but for AI. Website, not TV. AI judges instead of a human panel.
 
-## Why It Works
-- Contest format = built-in marketing. People pitch to win.
-- AI judges = scalable, always on, no scheduling.
-- Starlink + AI databases = reach people who never had the tools.
-- Motivates real creativity and business exploration in America.
+Independent contest. Do not name, badge, or imply partnership with any hardware or satellite company.
 
-## Core Features (v1)
+## Why it works
+- Contest format = built-in marketing.
+- AI judges = always on, no scheduling.
+- Motivates people to write a real idea down and take feedback.
+
+## Core features (v1)
 - Pitch submission form
-- AI judge scoring (personas: Builder, Market, Impact)
+- AI judge scoring (Builder, Market, Impact)
 - Leaderboard with Nova Score
-- Starlink bonus for connectivity-focused ideas
 
-## v2 Ideas
-- Voice pitches (ElevenLabs-style)
-- Live judging sessions
-- Backing / build pipeline
-- Community voting
-- Domain marketplace for winning ideas
+## Scoring
+Each judge gives 0-100. Average is the Nova Score.
+Top 10% get featured. No outside-brand prizes unless a real deal exists and is disclosed.
 
-## Tech Stack (proposed)
-- Frontend: simple HTML/JS or Next.js
-- Backend: API for pitch storage + judge orchestration
-- LLM: Grok or similar for judging
-- Database: Postgres or edge DB
-- Hosting: Vercel or similar
-
-## Next Steps
-1. Flesh out judge prompts
-2. Add real pitch storage
-3. Wire up LLM judging
+## Next
+1. Frozen judge prompts
+2. Persistent pitch storage
+3. Real LLM judging
 4. Deploy landing page
 5. Launch contest round 1
