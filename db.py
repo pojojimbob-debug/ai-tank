@@ -1,4 +1,4 @@
-"""AI Tank — SQLite persistence."""
+"""AI Tank — SQLite persistence (API-aligned)."""
 
 from __future__ import annotations
 
