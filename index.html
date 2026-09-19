@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Tank — Shark Tank for AI Ideas</title>
+  <title>AI Tank — Crowdsource AI ideas</title>
   <style>
     :root {
       --bg: #0a0a0f;
@@ -94,36 +94,36 @@
 <body>
   <header>
     <h1>AI Tank</h1>
-    <p class="tagline">Shark Tank for AI. Pitch. Get judged. Build the future.</p>
+    <p class="tagline">Have an AI idea? Write it down. Get notes. See what other people are building toward.</p>
   </header>
   <main>
     <section class="pitch-form">
-      <h2>Submit Your Pitch</h2>
+      <h2>Share an idea</h2>
       <form id="pitchForm">
-        <label for="title">Idea Title</label>
-        <input type="text" id="title" placeholder="e.g. Crop AI for rural farms" required>
-        <label for="problem">The Problem</label>
-        <textarea id="problem" rows="3" placeholder="What are you solving?" required></textarea>
-        <label for="solution">Your AI Solution</label>
-        <textarea id="solution" rows="3" placeholder="How does AI fix it?" required></textarea>
-        <label for="why">Why Now / Why You</label>
-        <textarea id="why" rows="2" placeholder="Why this matters now"></textarea>
-        <button type="submit" id="submitBtn">Pitch It</button>
+        <label for="title">Title</label>
+        <input type="text" id="title" placeholder="e.g. Crop notes that work with dirty hands" required>
+        <label for="problem">The problem</label>
+        <textarea id="problem" rows="3" placeholder="Who is stuck, and how?" required></textarea>
+        <label for="solution">The AI idea</label>
+        <textarea id="solution" rows="3" placeholder="What should the system do?" required></textarea>
+        <label for="why">Why this, why now</label>
+        <textarea id="why" rows="2" placeholder="Optional — timing, who it's for"></textarea>
+        <button type="submit" id="submitBtn">Add to the board</button>
         <p class="status" id="status"></p>
       </form>
     </section>
     <section class="verdict" id="verdict">
       <h2 id="verdictTitle"></h2>
-      <p>Nova Score: <span class="score" id="verdictScore"></span></p>
+      <p>Notes score: <span class="score" id="verdictScore"></span></p>
       <div id="verdictJudges"></div>
     </section>
     <section class="leaderboard">
-      <h2>Top Pitches</h2>
+      <h2>Idea board</h2>
       <div id="pitches"></div>
     </section>
   </main>
   <footer>
-    AI Tank — Independent contest. Not affiliated with any satellite or hardware brand.
+    A public board for AI ideas. Independent. Not a TV format. Not affiliated with any brand.
   </footer>
   <script>
     const form = document.getElementById('pitchForm');
@@ -139,7 +139,7 @@
 
     function renderBoard(rows) {
       if (!rows.length) {
-        pitchesEl.innerHTML = '<p class="status">No pitches yet. First one up is first on the board.</p>';
+        pitchesEl.innerHTML = '<p class="status">Board is empty. First idea up is first on the wall.</p>';
         return;
       }
       pitchesEl.innerHTML = rows.map(function (p) {
@@ -159,14 +159,14 @@
 
     async function loadBoard() {
       const res = await fetch('/api/leaderboard');
-      if (!res.ok) throw new Error('leaderboard ' + res.status);
+      if (!res.ok) throw new Error('board ' + res.status);
       renderBoard(await res.json());
     }
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
       submitBtn.disabled = true;
-      setStatus('Judges are scoring…');
+      setStatus('Reading the idea…');
       verdictEl.style.display = 'none';
       const payload = {
         title: document.getElementById('title').value.trim(),
@@ -181,7 +181,7 @@
           body: JSON.stringify(payload)
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || ('pitch ' + res.status));
+        if (!res.ok) throw new Error(data.error || ('submit ' + res.status));
         document.getElementById('verdictTitle').textContent = payload.title;
         document.getElementById('verdictScore').textContent = data.nova_score;
         document.getElementById('verdictJudges').innerHTML = (data.judges || []).map(function (j) {
@@ -189,18 +189,18 @@
             '</strong> — ' + j.score + '<br>' + escapeHtml(j.rationale) + '</div>';
         }).join('');
         verdictEl.style.display = 'block';
-        setStatus('Pitch ' + data.id + ' is on the board.', 'ok');
+        setStatus('Idea ' + data.id + ' is on the board.', 'ok');
         form.reset();
         await loadBoard();
       } catch (err) {
-        setStatus(err.message || 'Could not reach the tank. Run python app.py first.', 'err');
+        setStatus(err.message || 'Could not reach the board. Run python app.py first.', 'err');
       } finally {
         submitBtn.disabled = false;
       }
     });
 
     loadBoard().catch(function () {
-      pitchesEl.innerHTML = '<p class="status err">Leaderboard offline. Start the Flask app.</p>';
+      pitchesEl.innerHTML = '<p class="status err">Board offline. Start the Flask app.</p>';
     });
   </script>
 </body>

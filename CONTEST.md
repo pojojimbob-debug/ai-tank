@@ -1,16 +1,9 @@
-# AI Tank Contest — Round 1
+# Board rules (round 1)
 
-## Theme
-Any AI idea that can be explained in a short pitch: problem, solution, why now.
+There is no contest prize in v1.
 
-## How to enter
-1. Run the site locally or open the deployed page.
-2. Submit title, problem, solution, why now.
-3. AI judges score it. Nova Score appears on the leaderboard.
+Anyone can post an AI idea: title, problem, solution, why now.
 
-## Prizes (round 1)
-- Top 10%: featured on the site
-- Nothing that implies backing, hardware, or connectivity from a company we do not have a deal with
+The board sorts by reviewer notes so it is readable. That number is feedback, not a winner.
 
-## Rule
-Do not affiliate the contest with a brand we have not signed.
+Do not promise funding, hardware, or a brand deal.

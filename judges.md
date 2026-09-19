@@ -1,15 +1,14 @@
-# AI Judges
+# Reviewers
 
-## 1. The Builder
-Focus: Feasibility, tech stack, can a small team ship in 90 days?
-Prompt: Score this pitch on whether a small team could build it in 90 days.
+These are note-givers, not sharks and not investors.
 
-## 2. The Market Shark
-Focus: Market size, competition, why now.
-Prompt: Is this a real market or a toy? What is the wedge?
+## 1. Builder
+Can a small team ship a first version in 90 days?
 
-## 3. The Impact Judge
-Focus: Jobs, underserved users, does this help people actually build?
-Prompt: How much does this move the needle for people who would use it?
+## 2. Market
+Is there a real user, or is this a toy? What is the wedge?
 
-Each judge gives 0-100. Average is the Nova Score.
+## 3. Impact
+Who is better off if this exists?
+
+Each leaves 0-100 plus a short rationale. Average is only for sorting the board.

@@ -1,26 +1,25 @@
-# AI Tank Concept
+# Concept
 
-Shark Tank, but for AI. Website, not TV. AI judges instead of a human panel.
+Crowdsource AI ideas from anyone who has one.
 
-Independent contest. Do not name, badge, or imply partnership with any hardware or satellite company.
+People do not need a deck, a company, or a prize. They need a form and a wall.
 
-## Why it works
-- Contest format = built-in marketing.
-- AI judges = always on, no scheduling.
-- Motivates people to write a real idea down and take feedback.
+## What it is
+- A public idea board
+- Optional AI notes so a raw idea gets a first pass (can it ship, is there a user, does it help)
+- Later: comments, follows, "I'd use this" signals from other people
 
-## Core features (v1)
-- Pitch submission form
-- AI judge scoring (Builder, Market, Impact)
-- Leaderboard with Nova Score
+## What it is not
+- Shark Tank
+- A backing / equity show
+- An implied partnership with any company
 
-## Scoring
-Each judge gives 0-100. Average is the Nova Score.
-Top 10% get featured. No outside-brand prizes unless a real deal exists and is disclosed.
+## v1
+- Submit idea
+- AI notes + a single score so the board can sort
+- Public list
 
-## Next
-1. Frozen judge prompts
-2. Persistent pitch storage
-3. Real LLM judging
-4. Deploy landing page
-5. Launch contest round 1
+## Later
+- Human comments and votes
+- Grouping similar ideas
+- Builders claiming an idea to work on (with the author's say)

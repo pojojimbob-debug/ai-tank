@@ -1,10 +1,15 @@
 # AI Tank
 
-Shark Tank for AI ideas. Website, not TV. AI judges, not a human panel.
+A public board where anyone can write down an AI idea and get structured notes back.
 
-Pitch a concept. Three judge personas score it. Nova Score hits the leaderboard.
+Not a TV show. Not a prize panel. Not affiliated with any brand.
 
-Round 1 prize: featured on the board. Independent project — not affiliated with any hardware, satellite, or connectivity brand.
+Repo name is still `ai-tank` until a better name is picked.
+
+## Loop
+1. Write the problem, the idea, and why now.
+2. Three reviewers leave notes (buildable, market, impact).
+3. The idea lands on the public board.
 
 ## Run locally
 
@@ -15,8 +20,4 @@ python app.py
 
 Open http://localhost:5000
 
-Judges are still random ranges. Swap `score_pitch()` in `judge_engine.py` for a real LLM later.
-
-Store is in-memory. Board clears on restart.
-
-Canonical repo: https://github.com/pojojimbob-debug/ai-tank
+Reviewer scores are still simulated. Store is in-memory.
